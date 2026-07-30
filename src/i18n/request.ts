@@ -1,13 +1,13 @@
 /**
  * next-intl server configuration
- * Provides translations for server components
+ * Resolves the request locale from the locale cookie and loads its messages.
  */
 
 import { getRequestConfig } from "next-intl/server";
-import { defaultLocale } from "./config";
+import { getUserLocale } from "./locale";
 
 export default getRequestConfig(async () => {
-  const locale = defaultLocale;
+  const locale = await getUserLocale();
 
   return {
     locale,

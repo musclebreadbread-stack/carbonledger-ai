@@ -3,59 +3,61 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface NavItem {
-  title: string;
+  /** Key under the `nav` message namespace. */
+  titleKey: string;
   href: string;
   icon: React.ReactNode;
-  children?: { title: string; href: string }[];
+  children?: { titleKey: string; href: string }[];
 }
 
 const navItems: NavItem[] = [
   {
-    title: "Dashboard",
+    titleKey: "dashboard",
     href: "/",
     icon: <LayoutDashboardIcon />,
   },
   {
-    title: "Emissions",
+    titleKey: "emissions",
     href: "/emissions",
     icon: <CloudIcon />,
     children: [
-      { title: "Scope 1", href: "/emissions?scope=1" },
-      { title: "Scope 2", href: "/emissions?scope=2" },
-      { title: "Scope 3", href: "/emissions?scope=3" },
+      { titleKey: "scope1", href: "/emissions?scope=1" },
+      { titleKey: "scope2", href: "/emissions?scope=2" },
+      { titleKey: "scope3", href: "/emissions?scope=3" },
     ],
   },
   {
-    title: "Emission Factors",
+    titleKey: "emission_factors",
     href: "/emission-factors",
     icon: <DatabaseIcon />,
   },
   {
-    title: "Reports",
+    titleKey: "reports",
     href: "/reports",
     icon: <FileTextIcon />,
   },
   {
-    title: "Suppliers",
+    titleKey: "suppliers",
     href: "/suppliers",
     icon: <TruckIcon />,
   },
   {
-    title: "Targets",
+    titleKey: "targets",
     href: "/targets",
     icon: <TargetIcon />,
   },
   {
-    title: "Settings",
+    titleKey: "settings",
     href: "/settings",
     icon: <SettingsIcon />,
   },
   {
-    title: "Audit Log",
+    titleKey: "audit_log",
     href: "/audit-log",
     icon: <ShieldIcon />,
   },
@@ -68,6 +70,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations("nav");
 
   return (
     <aside
@@ -104,7 +107,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                 )}
               >
                 <span className="shrink-0">{item.icon}</span>
-                {!collapsed && <span>{item.title}</span>}
+                {!collapsed && <span>{t(item.titleKey)}</span>}
               </Link>
               {!collapsed && item.children && isActive && (
                 <div className="ml-8 mt-1 space-y-1">
@@ -114,7 +117,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                       href={child.href}
                       className="block rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
                     >
-                      {child.title}
+                      {t(child.titleKey)}
                     </Link>
                   ))}
                 </div>
@@ -126,9 +129,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
 
       {/* Footer */}
       <div className="border-t p-4">
-        {!collapsed && (
-          <p className="text-xs text-muted-foreground">CarbonLedger AI v0.1.0</p>
-        )}
+        {!collapsed && <p className="text-xs text-muted-foreground">{t("version")}</p>}
       </div>
     </aside>
   );

@@ -14,3 +14,15 @@ export const localeNames: Record<Locale, string> = {
   ja: "日本語",
   zh: "中文",
 };
+
+/**
+ * Name of the cookie that persists the visitor's locale choice.
+ *
+ * This app resolves the locale from a cookie rather than from a `[locale]` URL
+ * segment, so routes stay at `/emissions` instead of `/ko/emissions`.
+ */
+export const LOCALE_COOKIE = "NEXT_LOCALE";
+
+export function isLocale(value: unknown): value is Locale {
+  return typeof value === "string" && (locales as readonly string[]).includes(value);
+}

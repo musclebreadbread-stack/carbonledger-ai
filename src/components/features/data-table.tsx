@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
   searchKey?: string;
+  /** Overrides the localized default placeholder. */
   searchPlaceholder?: string;
   pageSize?: number;
   onExport?: () => void;
@@ -32,10 +34,11 @@ export function DataTable<T extends Record<string, unknown>>({
   columns,
   data,
   searchKey,
-  searchPlaceholder = "Search...",
+  searchPlaceholder,
   pageSize = 10,
   onExport,
 }: DataTableProps<T>) {
+  const t = useTranslations("table");
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(0);
   const [sortKey, setSortKey] = React.useState<string | null>(null);
@@ -82,7 +85,7 @@ export function DataTable<T extends Record<string, unknown>>({
         <div className="flex items-center gap-2">
           {searchKey && (
             <Input
-              placeholder={searchPlaceholder}
+              placeholder={searchPlaceholder ?? t("search")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -95,7 +98,7 @@ export function DataTable<T extends Record<string, unknown>>({
         <div className="flex items-center gap-2">
           {onExport && (
             <Button variant="outline" size="sm" onClick={onExport}>
-              Export
+              {t("export")}
             </Button>
           )}
         </div>
@@ -126,7 +129,7 @@ export function DataTable<T extends Record<string, unknown>>({
             {paginatedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {t("no_results")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -146,9 +149,7 @@ export function DataTable<T extends Record<string, unknown>>({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {sortedData.length} total rows
-        </p>
+        <p className="text-sm text-muted-foreground">{t("total_rows", { count: sortedData.length })}</p>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -156,18 +157,16 @@ export function DataTable<T extends Record<string, unknown>>({
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
           >
-            Previous
+            {t("previous")}
           </Button>
-          <span className="text-sm">
-            Page {page + 1} of {totalPages || 1}
-          </span>
+          <span className="text-sm">{t("page_of", { page: page + 1, total: totalPages || 1 })}</span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page >= totalPages - 1}
           >
-            Next
+            {t("next")}
           </Button>
         </div>
       </div>

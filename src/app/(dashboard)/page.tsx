@@ -1,62 +1,65 @@
+import { getTranslations } from "next-intl/server";
 import { KPICard } from "@/components/features/kpi-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const t = await getTranslations("dashboard");
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">GHG emissions overview and key performance indicators</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       {/* KPI Cards Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard
-          title="Total Emissions"
+          title={t("total_emissions")}
           value="12,456 tCO2e"
           trend={{ value: -8.2, direction: "down" }}
-          description="vs. last year"
+          description={t("vs_last_year")}
           icon={<CloudIconSmall />}
         />
         <KPICard
-          title="Scope 1"
+          title={t("scope1_total")}
           value="4,231 tCO2e"
           trend={{ value: -5.1, direction: "down" }}
-          description="Direct emissions"
+          description={t("direct_emissions")}
         />
         <KPICard
-          title="Scope 2"
+          title={t("scope2_total")}
           value="5,892 tCO2e"
           trend={{ value: -12.3, direction: "down" }}
-          description="Electricity & heat"
+          description={t("electricity_heat")}
         />
         <KPICard
-          title="Scope 3"
+          title={t("scope3_total")}
           value="2,333 tCO2e"
           trend={{ value: 3.4, direction: "up" }}
-          description="Value chain"
+          description={t("value_chain")}
         />
       </div>
 
       {/* Secondary KPIs */}
       <div className="grid gap-4 md:grid-cols-3">
         <KPICard
-          title="Reduction Progress"
+          title={t("reduction_progress")}
           value="32%"
-          description="of 2030 target (50% reduction)"
+          description={t("target_progress_desc")}
           trend={{ value: 8, direction: "down" }}
         />
         <KPICard
-          title="Emission Intensity"
+          title={t("emission_intensity")}
           value="0.42 tCO2e/M KRW"
-          description="Revenue intensity"
+          description={t("revenue_intensity")}
           trend={{ value: -10.5, direction: "down" }}
         />
         <KPICard
-          title="YoY Change"
+          title={t("yoy_change")}
           value="-8.2%"
-          description="Compared to previous year"
+          description={t("vs_previous_year")}
           trend={{ value: -8.2, direction: "down" }}
         />
       </div>
@@ -66,13 +69,13 @@ export default function DashboardPage() {
         {/* Emissions Trend Chart Placeholder */}
         <Card>
           <CardHeader>
-            <CardTitle>Emissions Trend</CardTitle>
+            <CardTitle>{t("emissions_trend")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex h-64 items-center justify-center rounded-md border border-dashed">
               <div className="space-y-2 text-center">
                 <Skeleton className="mx-auto h-32 w-full max-w-xs" />
-                <p className="text-sm text-muted-foreground">Monthly emissions trend (Recharts)</p>
+                <p className="text-sm text-muted-foreground">{t("trend_placeholder")}</p>
               </div>
             </div>
           </CardContent>
@@ -81,7 +84,7 @@ export default function DashboardPage() {
         {/* Scope Breakdown Donut Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Scope Breakdown</CardTitle>
+            <CardTitle>{t("scope_breakdown")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex h-64 items-center justify-center rounded-md border border-dashed">
@@ -89,15 +92,15 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-center gap-4">
                   <div className="flex items-center gap-1">
                     <div className="h-3 w-3 rounded-full bg-red-500" />
-                    <span className="text-xs">Scope 1 (34%)</span>
+                    <span className="text-xs">{t("scope1_total")} (34%)</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="h-3 w-3 rounded-full bg-blue-500" />
-                    <span className="text-xs">Scope 2 (47%)</span>
+                    <span className="text-xs">{t("scope2_total")} (47%)</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="h-3 w-3 rounded-full bg-green-500" />
-                    <span className="text-xs">Scope 3 (19%)</span>
+                    <span className="text-xs">{t("scope3_total")} (19%)</span>
                   </div>
                 </div>
                 <Skeleton className="mx-auto h-32 w-32 rounded-full" />
@@ -110,7 +113,7 @@ export default function DashboardPage() {
       {/* Top 10 Emission Sources Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Top 10 Emission Sources</CardTitle>
+          <CardTitle>{t("top_sources")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -128,13 +131,13 @@ export default function DashboardPage() {
       {/* Monthly Comparison */}
       <Card>
         <CardHeader>
-          <CardTitle>Monthly Comparison</CardTitle>
+          <CardTitle>{t("monthly_comparison")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex h-48 items-center justify-center rounded-md border border-dashed">
             <div className="space-y-2 text-center">
               <Skeleton className="mx-auto h-32 w-full max-w-md" />
-              <p className="text-sm text-muted-foreground">Monthly comparison bar chart (Recharts)</p>
+              <p className="text-sm text-muted-foreground">{t("comparison_placeholder")}</p>
             </div>
           </div>
         </CardContent>

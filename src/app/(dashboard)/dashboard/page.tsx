@@ -1,10 +1,44 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { KPICard } from "@/components/features/kpi-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SampleDataNotice } from "@/components/features/sample-data-notice";
+import { EmissionsTrendChart } from "@/components/features/charts/emissions-trend-chart";
+import { MonthlyComparisonChart } from "@/components/features/charts/monthly-comparison-chart";
+import { ScopeBreakdownChart } from "@/components/features/charts/scope-breakdown-chart";
+import { ScopeLegend } from "@/components/features/charts/scope-legend";
+import { TopSourcesChart } from "@/components/features/charts/top-sources-chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDashboardData } from "@/lib/dashboard/sample-data";
 
+/**
+ * Dashboard index, served at `/dashboard`.
+ *
+ * Note the route: `/` is the marketing landing page. This page previously lived
+ * at `src/app/(dashboard)/page.tsx`, which compiled to `/` as well and lost the
+ * collision, making the dashboard unreachable.
+ *
+ * This is a Server Component. It resolves the data once and hands plain
+ * serializable arrays to the chart components, which are Client Components
+ * because Recharts measures its container in the browser.
+ *
+ * The figures are sample data (see `src/lib/dashboard/sample-data.ts`) — there
+ * is no live database yet. `data.isSampleData` drives the banner at the top of
+ * the page so the numbers are never mistaken for reported emissions.
+ */
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
+  const tScopes = await getTranslations("scopes");
+  const tCharts = await getTranslations("charts");
+
+  const locale = await getLocale();
+
+  const data = await getDashboardData();
+  const { kpis } = data;
+
+  const numberFormat = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+  const tonnes = (value: number) => `${numberFormat.format(value)} ${tCharts("unit_tco2e")}`;
+
+  /** Negative change is an emissions reduction, i.e. good news. */
+  const yoyDirection = kpis.yoyChangePercent <= 0 ? "down" : "up";
 
   return (
     <div className="space-y-6">
@@ -13,31 +47,30 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
+      {data.isSampleData && <SampleDataNotice message={t("sample_data_notice")} />}
+
       {/* KPI Cards Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard
           title={t("total_emissions")}
-          value="12,456 tCO2e"
-          trend={{ value: -8.2, direction: "down" }}
+          value={tonnes(kpis.totalEmissions)}
+          trend={{ value: kpis.yoyChangePercent, direction: yoyDirection }}
           description={t("vs_last_year")}
           icon={<CloudIconSmall />}
         />
         <KPICard
           title={t("scope1_total")}
-          value="4,231 tCO2e"
-          trend={{ value: -5.1, direction: "down" }}
+          value={tonnes(kpis.scope1)}
           description={t("direct_emissions")}
         />
         <KPICard
           title={t("scope2_total")}
-          value="5,892 tCO2e"
-          trend={{ value: -12.3, direction: "down" }}
+          value={tonnes(kpis.scope2)}
           description={t("electricity_heat")}
         />
         <KPICard
           title={t("scope3_total")}
-          value="2,333 tCO2e"
-          trend={{ value: 3.4, direction: "up" }}
+          value={tonnes(kpis.scope3)}
           description={t("value_chain")}
         />
       </div>
@@ -46,100 +79,96 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <KPICard
           title={t("reduction_progress")}
-          value="32%"
+          value={`${kpis.reductionProgressPercent}%`}
           description={t("target_progress_desc")}
-          trend={{ value: 8, direction: "down" }}
         />
         <KPICard
           title={t("emission_intensity")}
-          value="0.42 tCO2e/M KRW"
+          value={`${kpis.intensityPerRevenue} tCO2e/M KRW`}
           description={t("revenue_intensity")}
-          trend={{ value: -10.5, direction: "down" }}
         />
         <KPICard
           title={t("yoy_change")}
-          value="-8.2%"
+          value={`${kpis.yoyChangePercent}%`}
           description={t("vs_previous_year")}
-          trend={{ value: -8.2, direction: "down" }}
+          trend={{ value: kpis.yoyChangePercent, direction: yoyDirection }}
         />
       </div>
 
-      {/* Charts and Tables */}
+      {/* Emissions trend + scope breakdown */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Emissions Trend Chart Placeholder */}
         <Card>
           <CardHeader>
             <CardTitle>{t("emissions_trend")}</CardTitle>
+            <CardDescription>{t("emissions_trend_desc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex h-64 items-center justify-center rounded-md border border-dashed">
-              <div className="space-y-2 text-center">
-                <Skeleton className="mx-auto h-32 w-full max-w-xs" />
-                <p className="text-sm text-muted-foreground">{t("trend_placeholder")}</p>
-              </div>
-            </div>
+            <EmissionsTrendChart data={data.trend} />
           </CardContent>
         </Card>
 
-        {/* Scope Breakdown Donut Chart */}
         <Card>
           <CardHeader>
             <CardTitle>{t("scope_breakdown")}</CardTitle>
+            <CardDescription>{t("scope_breakdown_desc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex h-64 items-center justify-center rounded-md border border-dashed">
-              <div className="space-y-4 text-center">
-                <div className="flex items-center justify-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 rounded-full bg-red-500" />
-                    <span className="text-xs">{t("scope1_total")} (34%)</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 rounded-full bg-blue-500" />
-                    <span className="text-xs">{t("scope2_total")} (47%)</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 rounded-full bg-green-500" />
-                    <span className="text-xs">{t("scope3_total")} (19%)</span>
-                  </div>
-                </div>
-                <Skeleton className="mx-auto h-32 w-32 rounded-full" />
-              </div>
-            </div>
+            <ScopeBreakdownChart data={data.scopeBreakdown} />
           </CardContent>
         </Card>
       </div>
 
-      {/* Top 10 Emission Sources Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("top_sources")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <Skeleton className="h-4 w-4" />
-                <Skeleton className="h-4 flex-1" />
-                <Skeleton className="h-4 w-20" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Monthly Comparison */}
+      {/* Monthly year-over-year comparison */}
       <Card>
         <CardHeader>
           <CardTitle>{t("monthly_comparison")}</CardTitle>
+          <CardDescription>
+            {/*
+              Years are passed as strings on purpose: ICU formats a numeric
+              argument with locale grouping separators, which would render 2024
+              as "2,024".
+            */}
+            {t("monthly_comparison_desc", {
+              current: String(data.year),
+              previous: String(data.year - 1),
+            })}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex h-48 items-center justify-center rounded-md border border-dashed">
-            <div className="space-y-2 text-center">
-              <Skeleton className="mx-auto h-32 w-full max-w-md" />
-              <p className="text-sm text-muted-foreground">{t("comparison_placeholder")}</p>
-            </div>
-          </div>
+          <MonthlyComparisonChart data={data.monthlyComparison} year={data.year} />
+        </CardContent>
+      </Card>
+
+      {/* Top 10 emission sources */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("top_sources")}</CardTitle>
+          <CardDescription>{t("top_sources_desc")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TopSourcesChart data={data.topSources} />
+          <ScopeLegend />
+        </CardContent>
+      </Card>
+
+      {/* Scope totals as text, so the figures behind the donut stay readable
+          for screen readers and anywhere the chart cannot render. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("scope_summary")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid gap-4 sm:grid-cols-3">
+            {data.scopeBreakdown.map((slice) => (
+              <div key={slice.scope} className="rounded-md border p-4">
+                <dt className="text-sm text-muted-foreground">{tScopes(`scope${slice.scope}`)}</dt>
+                <dd className="text-lg font-semibold">{tonnes(slice.value)}</dd>
+                <dd className="text-xs text-muted-foreground">
+                  {Math.round((slice.value / kpis.totalEmissions) * 1000) / 10}%
+                </dd>
+              </div>
+            ))}
+          </dl>
         </CardContent>
       </Card>
     </div>

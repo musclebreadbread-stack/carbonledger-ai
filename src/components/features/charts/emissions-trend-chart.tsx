@@ -54,7 +54,12 @@ export function EmissionsTrendChart({ data }: EmissionsTrendChartProps) {
   });
 
   return (
-    <div style={{ height: CHART_HEIGHT }} role="img" aria-label={t("aria_trend")}>
+    <div
+      style={{ height: CHART_HEIGHT }}
+      data-testid="chart-emissions-trend"
+      role="img"
+      aria-label={t("aria_trend")}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART_NEUTRAL.grid} vertical={false} />

@@ -45,6 +45,9 @@ export function LocaleSwitcher({ className, iconOnly = false }: LocaleSwitcherPr
           aria-label={t("label")}
           title={t("label")}
           disabled={isPending}
+          // Stable hook for E2E tests: the accessible name is itself translated,
+          // so it cannot be used to find this control across locales.
+          data-testid="locale-switcher"
           className={cn("gap-2", className)}
         >
           <GlobeIcon />

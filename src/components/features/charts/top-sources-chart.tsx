@@ -53,6 +53,7 @@ export function TopSourcesChart({ data }: TopSourcesChartProps) {
   return (
     <div
       style={{ height: ROW_HEIGHT * chartData.length + 32 }}
+      data-testid="chart-top-sources"
       role="img"
       aria-label={t("aria_top_sources")}
     >

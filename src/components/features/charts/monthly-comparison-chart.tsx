@@ -51,6 +51,7 @@ export function MonthlyComparisonChart({ data, year }: MonthlyComparisonChartPro
   return (
     <div
       style={{ height: CHART_HEIGHT_COMPACT }}
+      data-testid="chart-monthly-comparison"
       role="img"
       aria-label={t("aria_monthly_comparison")}
     >

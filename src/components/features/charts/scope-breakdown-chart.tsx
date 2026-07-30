@@ -37,7 +37,13 @@ export function ScopeBreakdownChart({ data }: ScopeBreakdownChartProps) {
   }));
 
   return (
-    <div className="relative" style={{ height: CHART_HEIGHT }} role="img" aria-label={t("aria_scope_breakdown")}>
+    <div
+      className="relative"
+      style={{ height: CHART_HEIGHT }}
+      data-testid="chart-scope-breakdown"
+      role="img"
+      aria-label={t("aria_scope_breakdown")}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie

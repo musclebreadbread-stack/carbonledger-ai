@@ -14,8 +14,8 @@ ALTER TABLE emission_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE targets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE workflows ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reduction_targets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workflow_definitions ENABLE ROW LEVEL SECURITY;
 
 -- Helper function to get current user's company_id
 CREATE OR REPLACE FUNCTION auth.user_company_id()
@@ -144,10 +144,10 @@ CREATE POLICY "admin_manage_suppliers" ON suppliers
 -- ============================================================
 -- TARGETS: Company-scoped
 -- ============================================================
-CREATE POLICY "company_view_targets" ON targets
+CREATE POLICY "company_view_targets" ON reduction_targets
   FOR SELECT USING (company_id = auth.user_company_id());
 
-CREATE POLICY "admin_manage_targets" ON targets
+CREATE POLICY "admin_manage_targets" ON reduction_targets
   FOR ALL USING (
     company_id = auth.user_company_id()
     AND auth.user_role() IN ('super_admin', 'company_admin')
@@ -168,10 +168,10 @@ CREATE POLICY "admin_manage_users" ON users
 -- ============================================================
 -- WORKFLOWS: Company-scoped
 -- ============================================================
-CREATE POLICY "company_view_workflows" ON workflows
+CREATE POLICY "company_view_workflows" ON workflow_definitions
   FOR SELECT USING (company_id = auth.user_company_id());
 
-CREATE POLICY "authorized_manage_workflows" ON workflows
+CREATE POLICY "authorized_manage_workflows" ON workflow_definitions
   FOR ALL USING (
     company_id = auth.user_company_id()
     AND auth.user_role() IN ('super_admin', 'company_admin', 'site_admin', 'reviewer')

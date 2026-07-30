@@ -87,6 +87,7 @@ export const DASHBOARD_ROUTES = [
  */
 export const ROUTE_HEADINGS: Record<string, (locale: TestLocale) => string> = {
   "/dashboard": (locale) => MESSAGES[locale].dashboard.title,
+  "/reports": (locale) => MESSAGES[locale].reports.title,
   "/sites": (locale) => MESSAGES[locale].sites.title,
   "/targets": (locale) => MESSAGES[locale].targets.title,
   "/approvals": (locale) => MESSAGES[locale].approvals.title,

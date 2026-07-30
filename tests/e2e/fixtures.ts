@@ -50,7 +50,15 @@ export const LOCALE_DISPLAY_NAMES: Record<TestLocale, string> = {
   zh: "中文",
 };
 
-/** Every dashboard route that existed before this phase, plus the new one. */
+/**
+ * Every dashboard route the sidebar links to.
+ *
+ * This list is the guard that was missing: `/targets`, `/approvals`,
+ * `/suppliers`, `/scope3` and `/ai-insights` were linked from the sidebar and
+ * 404ed, and nothing in the suite noticed. A route added to the sidebar without
+ * being added here is unprotected, so the sidebar-coverage test below asserts
+ * the two lists agree.
+ */
 export const DASHBOARD_ROUTES = [
   "/dashboard",
   "/emissions",
@@ -60,7 +68,32 @@ export const DASHBOARD_ROUTES = [
   "/audit-log",
   "/settings",
   "/sites",
+  "/targets",
+  "/approvals",
+  "/suppliers",
+  "/scope3",
+  "/ai-insights",
 ] as const;
+
+/**
+ * The expected `<h1>` for each dashboard route, as a path into the catalogue.
+ *
+ * Asserting the real heading is materially stronger than asserting "the h1 is
+ * not the string 404": a page that renders but resolves the wrong message
+ * namespace still passes the weaker check.
+ *
+ * `/emissions/new` is omitted deliberately — it is a form whose heading lives in
+ * its own namespace and is already covered elsewhere.
+ */
+export const ROUTE_HEADINGS: Record<string, (locale: TestLocale) => string> = {
+  "/dashboard": (locale) => MESSAGES[locale].dashboard.title,
+  "/sites": (locale) => MESSAGES[locale].sites.title,
+  "/targets": (locale) => MESSAGES[locale].targets.title,
+  "/approvals": (locale) => MESSAGES[locale].approvals.title,
+  "/suppliers": (locale) => MESSAGES[locale].suppliers.title,
+  "/scope3": (locale) => MESSAGES[locale].scope3.title,
+  "/ai-insights": (locale) => MESSAGES[locale].ai.title,
+};
 
 /** The `dashboard.title` string per locale, i.e. the dashboard's `<h1>`. */
 export function dashboardHeading(locale: TestLocale): string {

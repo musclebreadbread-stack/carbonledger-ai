@@ -12,7 +12,12 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { DASHBOARD_ROUTES, LANDING_HEADING, dashboardHeading } from "./fixtures";
+import {
+  DASHBOARD_ROUTES,
+  LANDING_HEADING,
+  ROUTE_HEADINGS,
+  dashboardHeading,
+} from "./fixtures";
 
 test.describe("route resolution", () => {
   test("/ serves the landing page, not the dashboard", async ({ page }) => {
@@ -51,6 +56,14 @@ test.describe("route resolution", () => {
       // renders rather than trusting the status code alone.
       await expect(page.locator("h1")).not.toHaveText("404");
       await expect(page.locator("h1").first()).not.toBeEmpty();
+
+      // Where the expected heading is known, assert it. A page that renders but
+      // resolves the wrong message namespace passes the checks above and fails
+      // this one.
+      const heading = ROUTE_HEADINGS[route];
+      if (heading) {
+        await expect(page.locator("h1").first()).toHaveText(heading("ko"));
+      }
     });
   }
 
@@ -59,6 +72,49 @@ test.describe("route resolution", () => {
   }) => {
     const response = await page.goto("/this-route-does-not-exist");
     expect(response?.status()).toBe(404);
+  });
+
+  /*
+   * The regression that motivated this: five routes were linked from the sidebar
+   * and 404ed, because nothing checked that a sidebar link resolves. Reading the
+   * hrefs out of the rendered sidebar rather than re-listing them means a link
+   * added to the nav in future is covered without anyone remembering to update a
+   * fixture.
+   */
+  test("every sidebar link resolves to a real page", async ({ page }) => {
+    await page.goto("/dashboard");
+
+    const hrefs = await page.locator("aside a[href]").evaluateAll((anchors) =>
+      anchors
+        .map((anchor) => anchor.getAttribute("href"))
+        .filter((href): href is string => href !== null)
+        // Query-string variants (?scope=1) resolve to their base route, which is
+        // already in the list; the brand link to /dashboard dedupes away too.
+        .filter((href) => href.startsWith("/") && !href.includes("?"))
+    );
+
+    expect(hrefs.length).toBeGreaterThan(0);
+
+    for (const href of [...new Set(hrefs)]) {
+      const response = await page.request.get(href);
+      expect(response.status(), `${href} should not 404`).toBe(200);
+    }
+  });
+
+  test("the sidebar links to every route the suite guards", async ({ page }) => {
+    await page.goto("/dashboard");
+
+    const hrefs = new Set(
+      await page
+        .locator("aside a[href]")
+        .evaluateAll((anchors) => anchors.map((anchor) => anchor.getAttribute("href") ?? ""))
+    );
+
+    // `/emissions/new` is reached from within `/emissions`, not from the nav.
+    const navigable = DASHBOARD_ROUTES.filter((route) => route !== "/emissions/new");
+    const missing = navigable.filter((route) => !hrefs.has(route));
+
+    expect(missing).toEqual([]);
   });
 
   test("the landing page's primary call to action leads to the dashboard", async ({ page }) => {

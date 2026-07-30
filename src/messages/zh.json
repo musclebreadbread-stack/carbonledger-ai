@@ -67,8 +67,12 @@
     "target_progress_desc": "占 2030 年目标（减排 50%）",
     "revenue_intensity": "营收强度",
     "vs_previous_year": "与上一年度相比",
-    "trend_placeholder": "月度排放趋势（Recharts）",
-    "comparison_placeholder": "月度对比柱状图（Recharts）"
+    "sample_data_notice": "所示所有数据均为示例数据。连接数据库后将替换为实际排放量。",
+    "emissions_trend_desc": "各范围月度排放量趋势",
+    "scope_breakdown_desc": "年度排放量各范围占比",
+    "monthly_comparison_desc": "{current}年月度排放量与{previous}年同月对比",
+    "top_sources_desc": "排放量最高的前十大排放源",
+    "scope_summary": "各范围排放量汇总"
   },
   "common": {
     "save": "保存",
@@ -309,6 +313,78 @@
     "company_fleet": "公司车队",
     "grid_electricity": "电网电力",
     "hvac_system": "暖通空调系统",
-    "business_travel": "商务出行"
+    "business_travel": "商务出行",
+    "boiler_2": "锅炉 #2",
+    "steam_purchased": "外购蒸汽",
+    "diesel_generator": "备用发电机（柴油）",
+    "purchased_goods": "采购原材料",
+    "upstream_transport": "上游运输与配送"
+  },
+  "scopes": {
+    "scope1": "范围 1",
+    "scope2": "范围 2",
+    "scope3": "范围 3"
+  },
+  "charts": {
+    "unit_tco2e": "tCO2e",
+    "no_data": "暂无可显示的数据",
+    "total": "合计",
+    "aria_trend": "各范围月度排放量趋势图",
+    "aria_scope_breakdown": "各范围排放量占比环形图",
+    "aria_monthly_comparison": "月度排放量同比柱状图",
+    "aria_top_sources": "前十大排放源柱状图"
+  },
+  "sites": {
+    "title": "厂区地图",
+    "subtitle": "厂区与工厂的地理分布及排放情况",
+    "map_title": "厂区位置",
+    "map_legend": "圆圈大小与年度排放量成正比。点击标记可查看详情。",
+    "map_loading": "正在加载地图...",
+    "list_title": "厂区列表",
+    "site_name": "厂区名称",
+    "address": "地址",
+    "grid_region": "电网区域",
+    "facilities": "设备数量",
+    "annual_emissions": "年度排放量",
+    "total_sites": "厂区总数",
+    "total_facilities": "设备总数",
+    "total_emissions": "总排放量",
+    "unit_tco2e": "tCO2e",
+    "coordinates": "坐标",
+    "not_geocoded": "无坐标",
+    "no_coordinates": "有 {count} 个厂区因缺少坐标信息未在地图上显示。",
+    "sample_data_notice": "所显示的厂区与排放量均为示例数据。连接数据库后将替换为真实数据。"
+  },
+  "site_names": {
+    "ulsan_plant": "蔚山第一工厂",
+    "pyeongtaek_plant": "平泽半导体工厂",
+    "gwangyang_plant": "光阳材料工厂",
+    "cheongju_plant": "清州工厂",
+    "busan_plant": "釜山第二工厂",
+    "seoul_hq": "首尔总部",
+    "incheon_logistics": "仁川物流中心"
+  },
+  "site_addresses": {
+    "ulsan_plant": "蔚山广域市南区如川路100",
+    "pyeongtaek_plant": "京畿道平泽市古德面产业路50",
+    "gwangyang_plant": "全罗南道光阳市锦湖洞制铁路300",
+    "cheongju_plant": "忠清北道清州市兴德区产业园区路25",
+    "busan_plant": "釜山广域市沙下区新平路77",
+    "seoul_hq": "首尔特别市中区世宗大路110",
+    "incheon_logistics": "仁川广域市西区烽燧台路400"
+  },
+  "months": {
+    "m1": "1月",
+    "m2": "2月",
+    "m3": "3月",
+    "m4": "4月",
+    "m5": "5月",
+    "m6": "6月",
+    "m7": "7月",
+    "m8": "8月",
+    "m9": "9月",
+    "m10": "10月",
+    "m11": "11月",
+    "m12": "12月"
   }
 }

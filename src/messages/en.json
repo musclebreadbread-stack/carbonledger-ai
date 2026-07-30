@@ -67,8 +67,12 @@
     "target_progress_desc": "of 2030 target (50% reduction)",
     "revenue_intensity": "Revenue intensity",
     "vs_previous_year": "Compared to previous year",
-    "trend_placeholder": "Monthly emissions trend (Recharts)",
-    "comparison_placeholder": "Monthly comparison bar chart (Recharts)"
+    "sample_data_notice": "All figures shown are sample data. They will be replaced with actual emissions once the database is connected.",
+    "emissions_trend_desc": "Monthly emissions trend by scope",
+    "scope_breakdown_desc": "Share of annual emissions by scope",
+    "monthly_comparison_desc": "Monthly emissions in {current} compared with the same months in {previous}",
+    "top_sources_desc": "The ten largest emission sources",
+    "scope_summary": "Emissions summary by scope"
   },
   "common": {
     "save": "Save",
@@ -309,6 +313,78 @@
     "company_fleet": "Company Fleet",
     "grid_electricity": "Grid Electricity",
     "hvac_system": "HVAC System",
-    "business_travel": "Business Travel"
+    "business_travel": "Business Travel",
+    "boiler_2": "Boiler #2",
+    "steam_purchased": "Purchased steam",
+    "diesel_generator": "Backup generator (diesel)",
+    "purchased_goods": "Purchased goods and materials",
+    "upstream_transport": "Upstream transport and distribution"
+  },
+  "scopes": {
+    "scope1": "Scope 1",
+    "scope2": "Scope 2",
+    "scope3": "Scope 3"
+  },
+  "charts": {
+    "unit_tco2e": "tCO2e",
+    "no_data": "No data to display",
+    "total": "Total",
+    "aria_trend": "Chart of monthly emissions by scope",
+    "aria_scope_breakdown": "Donut chart of emissions by scope",
+    "aria_monthly_comparison": "Bar chart comparing monthly emissions year over year",
+    "aria_top_sources": "Bar chart of the top 10 emission sources"
+  },
+  "sites": {
+    "title": "Site Map",
+    "subtitle": "Geographic distribution of sites and plants, with their emissions",
+    "map_title": "Site locations",
+    "map_legend": "Circle size is proportional to annual emissions. Click a marker for details.",
+    "map_loading": "Loading map...",
+    "list_title": "Site list",
+    "site_name": "Site",
+    "address": "Address",
+    "grid_region": "Grid region",
+    "facilities": "Facilities",
+    "annual_emissions": "Annual emissions",
+    "total_sites": "Total sites",
+    "total_facilities": "Total facilities",
+    "total_emissions": "Total emissions",
+    "unit_tco2e": "tCO2e",
+    "coordinates": "Coordinates",
+    "not_geocoded": "No coordinates",
+    "no_coordinates": "{count} site(s) are not shown on the map because they have no coordinates.",
+    "sample_data_notice": "The sites and emissions shown are sample data. They will be replaced with real data once the database is connected."
+  },
+  "site_names": {
+    "ulsan_plant": "Ulsan Plant No.1",
+    "pyeongtaek_plant": "Pyeongtaek Semiconductor Plant",
+    "gwangyang_plant": "Gwangyang Materials Plant",
+    "cheongju_plant": "Cheongju Plant",
+    "busan_plant": "Busan Plant No.2",
+    "seoul_hq": "Seoul Headquarters",
+    "incheon_logistics": "Incheon Logistics Centre"
+  },
+  "site_addresses": {
+    "ulsan_plant": "100 Yeocheon-ro, Nam-gu, Ulsan",
+    "pyeongtaek_plant": "50 Sanup-ro, Godeok-myeon, Pyeongtaek-si, Gyeonggi-do",
+    "gwangyang_plant": "300 Jecheol-ro, Geumho-dong, Gwangyang-si, Jeollanam-do",
+    "cheongju_plant": "25 Sanupdanji-ro, Heungdeok-gu, Cheongju-si, Chungcheongbuk-do",
+    "busan_plant": "77 Sinpyeong-ro, Saha-gu, Busan",
+    "seoul_hq": "110 Sejong-daero, Jung-gu, Seoul",
+    "incheon_logistics": "400 Bongsudae-ro, Seo-gu, Incheon"
+  },
+  "months": {
+    "m1": "Jan",
+    "m2": "Feb",
+    "m3": "Mar",
+    "m4": "Apr",
+    "m5": "May",
+    "m6": "Jun",
+    "m7": "Jul",
+    "m8": "Aug",
+    "m9": "Sep",
+    "m10": "Oct",
+    "m11": "Nov",
+    "m12": "Dec"
   }
 }

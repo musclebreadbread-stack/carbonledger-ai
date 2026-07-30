@@ -67,8 +67,12 @@
     "target_progress_desc": "2030年目標（50%削減）に対して",
     "revenue_intensity": "売上高原単位",
     "vs_previous_year": "前年度との比較",
-    "trend_placeholder": "月次排出量推移（Recharts）",
-    "comparison_placeholder": "月次比較棒グラフ（Recharts）"
+    "sample_data_notice": "表示されているすべての数値はサンプルデータです。データベース接続後、実際の排出量に置き換えられます。",
+    "emissions_trend_desc": "月別・スコープ別の排出量推移",
+    "scope_breakdown_desc": "年間排出量のスコープ別構成比",
+    "monthly_comparison_desc": "{current}年の月別排出量と{previous}年同月の比較",
+    "top_sources_desc": "排出量が最も多い上位10の排出源",
+    "scope_summary": "スコープ別排出量サマリー"
   },
   "common": {
     "save": "保存",
@@ -309,6 +313,78 @@
     "company_fleet": "社用車",
     "grid_electricity": "系統電力",
     "hvac_system": "空調設備",
-    "business_travel": "出張"
+    "business_travel": "出張",
+    "boiler_2": "ボイラー #2",
+    "steam_purchased": "購入蒸気",
+    "diesel_generator": "非常用発電機(軽油)",
+    "purchased_goods": "購入原材料",
+    "upstream_transport": "上流の輸送・配送"
+  },
+  "scopes": {
+    "scope1": "スコープ1",
+    "scope2": "スコープ2",
+    "scope3": "スコープ3"
+  },
+  "charts": {
+    "unit_tco2e": "tCO2e",
+    "no_data": "表示するデータがありません",
+    "total": "合計",
+    "aria_trend": "スコープ別月間排出量の推移チャート",
+    "aria_scope_breakdown": "スコープ別排出量構成のドーナツチャート",
+    "aria_monthly_comparison": "月別前年比排出量の棒グラフ",
+    "aria_top_sources": "排出源上位10件の棒グラフ"
+  },
+  "sites": {
+    "title": "事業所マップ",
+    "subtitle": "事業所・工場の地理的分布と排出状況",
+    "map_title": "事業所の所在地",
+    "map_legend": "円の大きさは年間排出量に比例します。マーカーをクリックすると詳細が表示されます。",
+    "map_loading": "地図を読み込んでいます...",
+    "list_title": "事業所一覧",
+    "site_name": "事業所名",
+    "address": "住所",
+    "grid_region": "電力系統地域",
+    "facilities": "設備数",
+    "annual_emissions": "年間排出量",
+    "total_sites": "事業所数",
+    "total_facilities": "設備数合計",
+    "total_emissions": "総排出量",
+    "unit_tco2e": "tCO2e",
+    "coordinates": "座標",
+    "not_geocoded": "座標なし",
+    "no_coordinates": "座標情報がないため地図に表示されていない事業所が{count}件あります。",
+    "sample_data_notice": "表示されている事業所と排出量はサンプルデータです。データベース接続後、実際のデータに置き換えられます。"
+  },
+  "site_names": {
+    "ulsan_plant": "蔚山第1工場",
+    "pyeongtaek_plant": "平澤半導体工場",
+    "gwangyang_plant": "光陽素材工場",
+    "cheongju_plant": "清州工場",
+    "busan_plant": "釜山第2工場",
+    "seoul_hq": "ソウル本社",
+    "incheon_logistics": "仁川物流センター"
+  },
+  "site_addresses": {
+    "ulsan_plant": "蔚山広域市南区如川路100",
+    "pyeongtaek_plant": "京畿道平澤市古徳面産業路50",
+    "gwangyang_plant": "全羅南道光陽市金湖洞製鉄路300",
+    "cheongju_plant": "忠清北道清州市興徳区産業団地路25",
+    "busan_plant": "釜山広域市沙下区新平路77",
+    "seoul_hq": "ソウル特別市中区世宗大路110",
+    "incheon_logistics": "仁川広域市西区烽燧台路400"
+  },
+  "months": {
+    "m1": "1月",
+    "m2": "2月",
+    "m3": "3月",
+    "m4": "4月",
+    "m5": "5月",
+    "m6": "6月",
+    "m7": "7月",
+    "m8": "8月",
+    "m9": "9月",
+    "m10": "10月",
+    "m11": "11月",
+    "m12": "12月"
   }
 }

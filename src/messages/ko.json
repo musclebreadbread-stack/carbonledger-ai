@@ -67,8 +67,12 @@
     "target_progress_desc": "2030년 목표(50% 감축) 대비",
     "revenue_intensity": "매출액 원단위",
     "vs_previous_year": "전년도 대비",
-    "trend_placeholder": "월별 배출 추이 (Recharts)",
-    "comparison_placeholder": "월별 비교 막대 그래프 (Recharts)"
+    "sample_data_notice": "표시된 모든 수치는 샘플 데이터입니다. 데이터베이스 연동 후 실제 배출량으로 대체됩니다.",
+    "emissions_trend_desc": "월별 범위(Scope)별 배출량 추이",
+    "scope_breakdown_desc": "연간 배출량의 범위별 구성비",
+    "monthly_comparison_desc": "{current}년 월별 배출량과 {previous}년 동월 비교",
+    "top_sources_desc": "배출량이 가장 많은 상위 10개 배출원",
+    "scope_summary": "범위별 배출량 요약"
   },
   "common": {
     "save": "저장",
@@ -309,6 +313,78 @@
     "company_fleet": "업무용 차량",
     "grid_electricity": "계통 전력",
     "hvac_system": "공조 설비",
-    "business_travel": "출장"
+    "business_travel": "출장",
+    "boiler_2": "보일러 #2",
+    "steam_purchased": "구매 스팀",
+    "diesel_generator": "비상 발전기(경유)",
+    "purchased_goods": "구매 원자재",
+    "upstream_transport": "업스트림 물류"
+  },
+  "scopes": {
+    "scope1": "Scope 1",
+    "scope2": "Scope 2",
+    "scope3": "Scope 3"
+  },
+  "charts": {
+    "unit_tco2e": "tCO2e",
+    "no_data": "표시할 데이터가 없습니다",
+    "total": "합계",
+    "aria_trend": "범위별 월간 배출량 추이 차트",
+    "aria_scope_breakdown": "범위별 배출량 구성 도넛 차트",
+    "aria_monthly_comparison": "월별 전년 대비 배출량 막대 차트",
+    "aria_top_sources": "상위 10대 배출원 막대 차트"
+  },
+  "sites": {
+    "title": "사업장 지도",
+    "subtitle": "사업장 및 공장의 지리적 분포와 배출 현황",
+    "map_title": "사업장 위치",
+    "map_legend": "원의 크기는 연간 배출량에 비례합니다. 마커를 클릭하면 상세 정보가 표시됩니다.",
+    "map_loading": "지도를 불러오는 중...",
+    "list_title": "사업장 목록",
+    "site_name": "사업장명",
+    "address": "주소",
+    "grid_region": "전력계통 지역",
+    "facilities": "설비 수",
+    "annual_emissions": "연간 배출량",
+    "total_sites": "총 사업장 수",
+    "total_facilities": "총 설비 수",
+    "total_emissions": "총 배출량",
+    "unit_tco2e": "tCO2e",
+    "coordinates": "좌표",
+    "not_geocoded": "좌표 없음",
+    "no_coordinates": "좌표 정보가 없어 지도에 표시되지 않은 사업장이 {count}곳 있습니다.",
+    "sample_data_notice": "표시된 사업장과 배출량은 샘플 데이터입니다. 데이터베이스 연동 후 실제 데이터로 대체됩니다."
+  },
+  "site_names": {
+    "ulsan_plant": "울산 제1공장",
+    "pyeongtaek_plant": "평택 반도체공장",
+    "gwangyang_plant": "광양 소재공장",
+    "cheongju_plant": "청주 공장",
+    "busan_plant": "부산 제2공장",
+    "seoul_hq": "서울 본사",
+    "incheon_logistics": "인천 물류센터"
+  },
+  "site_addresses": {
+    "ulsan_plant": "울산광역시 남구 여천로 100",
+    "pyeongtaek_plant": "경기도 평택시 고덕면 산업로 50",
+    "gwangyang_plant": "전라남도 광양시 금호동 제철로 300",
+    "cheongju_plant": "충청북도 청주시 흥덕구 산업단지로 25",
+    "busan_plant": "부산광역시 사하구 신평로 77",
+    "seoul_hq": "서울특별시 중구 세종대로 110",
+    "incheon_logistics": "인천광역시 서구 봉수대로 400"
+  },
+  "months": {
+    "m1": "1월",
+    "m2": "2월",
+    "m3": "3월",
+    "m4": "4월",
+    "m5": "5월",
+    "m6": "6월",
+    "m7": "7월",
+    "m8": "8월",
+    "m9": "9월",
+    "m10": "10월",
+    "m11": "11월",
+    "m12": "12월"
   }
 }

@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 /**
- * Next.js Middleware
+ * Next.js Proxy (formerly Middleware; renamed in Next.js 16)
  * - Checks auth session on protected routes
  * - Redirects to /login if not authenticated
  * - Adds company_id to request headers for RLS
@@ -11,7 +11,7 @@ import { createServerClient } from "@supabase/ssr";
 
 const PUBLIC_ROUTES = ["/login", "/register", "/api/health"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes without auth check

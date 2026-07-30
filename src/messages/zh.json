@@ -21,6 +21,7 @@
   "nav": {
     "dashboard": "仪表板",
     "emissions": "排放量",
+    "scope3_categories": "Scope 3 类别",
     "emission_factors": "排放因子",
     "reports": "报告",
     "suppliers": "供应商",
@@ -30,6 +31,9 @@
     "scope1": "范围 1（直接排放）",
     "scope2": "范围 2（间接排放）",
     "scope3": "范围 3（其他间接）",
+    "approvals": "审批",
+    "sites": "厂区地图",
+    "ai_insights": "AI 分析",
     "version": "CarbonLedger AI v0.1.0"
   },
   "header": {

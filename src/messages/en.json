@@ -21,6 +21,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "emissions": "Emissions",
+    "scope3_categories": "Scope 3 Categories",
     "emission_factors": "Emission Factors",
     "reports": "Reports",
     "suppliers": "Suppliers",
@@ -30,6 +31,9 @@
     "scope1": "Scope 1 (Direct)",
     "scope2": "Scope 2 (Indirect)",
     "scope3": "Scope 3 (Other Indirect)",
+    "approvals": "Approvals",
+    "sites": "Site Map",
+    "ai_insights": "AI Insights",
     "version": "CarbonLedger AI v0.1.0"
   },
   "header": {

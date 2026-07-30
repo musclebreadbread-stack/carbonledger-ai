@@ -21,6 +21,7 @@
   "nav": {
     "dashboard": "ダッシュボード",
     "emissions": "排出量",
+    "scope3_categories": "Scope 3 カテゴリ",
     "emission_factors": "排出係数",
     "reports": "レポート",
     "suppliers": "サプライヤー",
@@ -30,6 +31,9 @@
     "scope1": "Scope 1（直接排出）",
     "scope2": "Scope 2（間接排出）",
     "scope3": "Scope 3（その他間接）",
+    "approvals": "承認",
+    "sites": "拠点マップ",
+    "ai_insights": "AI分析",
     "version": "CarbonLedger AI v0.1.0"
   },
   "header": {

@@ -9,13 +9,32 @@ import { createServerClient } from "@supabase/ssr";
  * - Rate limiting headers
  */
 
+/**
+ * Routes reachable without a session.
+ *
+ * `/` is the marketing landing page and must stay public — the authenticated
+ * dashboard index lives at `/dashboard` (see src/app/(dashboard)/dashboard).
+ */
 const PUBLIC_ROUTES = ["/login", "/register", "/api/health"];
+
+/** Routes that are public but must match exactly, not by prefix. */
+const PUBLIC_EXACT_ROUTES = ["/"];
+
+/** Where an authenticated user lands, and where post-login redirects default to. */
+export const DASHBOARD_ROUTE = "/dashboard";
+
+function isPublic(pathname: string): boolean {
+  return (
+    PUBLIC_EXACT_ROUTES.includes(pathname) ||
+    PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + "/"))
+  );
+}
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes without auth check
-  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (isPublic(pathname)) {
     return NextResponse.next();
   }
 
@@ -64,7 +83,7 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Redirect to login if not authenticated on protected routes
-  if (!user && !PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (!user && !isPublic(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);

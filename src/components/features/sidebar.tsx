@@ -18,7 +18,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     titleKey: "dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: <LayoutDashboardIcon />,
   },
   {
@@ -32,9 +32,19 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    titleKey: "scope3_categories",
+    href: "/scope3",
+    icon: <LayersIcon />,
+  },
+  {
     titleKey: "emission_factors",
     href: "/emission-factors",
     icon: <DatabaseIcon />,
+  },
+  {
+    titleKey: "approvals",
+    href: "/approvals",
+    icon: <CheckCircleIcon />,
   },
   {
     titleKey: "reports",
@@ -50,6 +60,16 @@ const navItems: NavItem[] = [
     titleKey: "targets",
     href: "/targets",
     icon: <TargetIcon />,
+  },
+  {
+    titleKey: "sites",
+    href: "/sites",
+    icon: <MapPinIcon />,
+  },
+  {
+    titleKey: "ai_insights",
+    href: "/ai-insights",
+    icon: <SparklesIcon />,
   },
   {
     titleKey: "settings",
@@ -82,7 +102,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       {/* Logo / Brand */}
       <div className="flex h-16 items-center justify-between border-b px-4">
         {!collapsed && (
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <span className="text-lg font-bold text-primary">CarbonLedger</span>
           </Link>
         )}
@@ -214,6 +234,41 @@ function MenuIcon() {
   return (
     <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" />
+    </svg>
+  );
+}
+
+function LayersIcon() {
+  return (
+    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
+      <path d="m6.08 9.5-3.5 1.6a1 1 0 0 0 0 1.81l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9a1 1 0 0 0 0-1.83l-3.5-1.59" />
+      <path d="m6.08 14.5-3.5 1.6a1 1 0 0 0 0 1.81l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9a1 1 0 0 0 0-1.83l-3.5-1.59" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon() {
+  return (
+    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function SparklesIcon() {
+  return (
+    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
     </svg>
   );
 }

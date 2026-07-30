@@ -21,8 +21,16 @@ export default function LoginPage() {
     try {
       // In production, this would call signIn from auth helpers
       // const { error } = await signIn(email, password);
-      // For now, redirect to dashboard
-      window.location.href = "/";
+      //
+      // Honour the `?redirect=` hint set by src/proxy.ts, otherwise land on the
+      // dashboard index. Read it off `window.location` rather than via
+      // `useSearchParams()` so this page still prerenders without a Suspense
+      // boundary. Only same-origin absolute paths are accepted.
+      const requested = new URLSearchParams(window.location.search).get("redirect");
+      const target = requested && requested.startsWith("/") && !requested.startsWith("//")
+        ? requested
+        : "/dashboard";
+      window.location.href = target;
     } finally {
       setIsLoading(false);
     }

@@ -21,6 +21,7 @@
   "nav": {
     "dashboard": "대시보드",
     "emissions": "배출량",
+    "scope3_categories": "Scope 3 카테고리",
     "emission_factors": "배출계수",
     "reports": "보고서",
     "suppliers": "공급업체",
@@ -30,6 +31,9 @@
     "scope1": "Scope 1 (직접배출)",
     "scope2": "Scope 2 (간접배출)",
     "scope3": "Scope 3 (기타간접)",
+    "approvals": "결재/승인",
+    "sites": "사업장 지도",
+    "ai_insights": "AI 분석",
     "version": "CarbonLedger AI v0.1.0"
   },
   "header": {

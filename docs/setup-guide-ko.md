@@ -171,8 +171,11 @@ npx supabase db push
 ```
 supabase/
   migrations/
-    0002_rls_policies.sql    # RLS 정책 정의
-  seed.sql                   # 샘플 데이터
+    0001_initial_schema.sql        # 테이블·타입 정의
+    0002_rls_policies.sql          # RLS 정책 (1단계)
+    0003_rls_policies_phase2.sql   # RLS 정책 (2단계) - 0002가 다루지 않은 14개 테이블
+  verification/                    # RLS 정책 검증 하네스 (Docker 필요)
+  seed.sql                         # 샘플 데이터
 ```
 
 ### 4.3 Drizzle ORM을 이용한 마이그레이션 (대안)
@@ -200,15 +203,15 @@ Row Level Security(RLS)는 멀티테넌트 데이터 격리를 보장합니다.
 
 ### 5.1 자동 적용 (마이그레이션 포함)
 
-`npx supabase db push` 실행 시 `0002_rls_policies.sql` 파일이 자동으로 적용됩니다.
+`npx supabase db push` 실행 시 `0002_rls_policies.sql` 과 `0003_rls_policies_phase2.sql` 이 번호 순서대로 자동 적용됩니다. 두 파일은 반드시 이 순서로 적용해야 합니다. `0003` 은 `0002` 가 정의한 `auth.user_company_id()` 및 `auth.user_role()` 헬퍼를 재사용합니다.
 
 ### 5.2 수동 적용
 
 Supabase SQL Editor에서 직접 실행할 경우:
 
 1. **Supabase 대시보드 > SQL Editor** 이동
-2. `supabase/migrations/0002_rls_policies.sql` 파일 내용을 복사하여 붙여넣기
-3. **Run** 클릭
+2. `supabase/migrations/0002_rls_policies.sql` 파일 내용을 복사하여 붙여넣고 **Run** 클릭
+3. 이어서 `supabase/migrations/0003_rls_policies_phase2.sql` 로 같은 작업을 반복
 
 ### 5.3 적용된 RLS 정책 확인
 
@@ -233,8 +236,25 @@ WHERE schemaname = 'public';
 | emission_records | writer_create_emissions | admin/site_admin만 생성 가능 |
 | emission_factors | all_view_emission_factors | 모든 인증 사용자 조회 가능 |
 | audit_logs | company_view_audit_logs | 자사 감사 로그만 조회 (수정/삭제 불가) |
+| scope3_records | company_view_scope3_records | 자사 Scope 3 데이터만 조회 |
+| supplier_emissions | reviewer_update_supplier_emissions | 검증(승인) 권한자만 수정 가능 |
+| workflow_instances | writer_create_workflow_instances | 결재 요청자를 본인으로만 기록 가능 |
+| workflow_steps | assignee_complete_workflow_steps | 담당자 본인의 미완료 단계만 수정 가능 (완료·서명된 단계는 변경 불가, 삭제 정책 없음) |
+| target_progress | company_view_target_progress | 자사 목표 실적만 조회 |
+| user_site_access | admin_grant_site_access | 관리자만 부여 가능 (본인에게 자가 부여 불가) |
+| scope3_categories, unit_conversions, emission_factor_sets | platform_manage_* | 조회는 전체 허용, 수정은 `super_admin` 만 |
 
 > **주의:** RLS 정책은 `service_role` 키를 사용할 때는 우회됩니다. 서버 측 관리 작업에서만 사용하세요.
+
+### 5.5 정책 동작 검증
+
+정책이 실제로 테넌트를 격리하는지 확인하려면 검증 하네스를 실행하십시오. 임시 PostgreSQL 16 컨테이너에 마이그레이션을 순서대로 적용한 뒤, 테이블 소유자가 아닌 역할로 두 테넌트를 오가며 조회·수정·삭제를 시도합니다.
+
+```bash
+bash supabase/verification/run.sh
+```
+
+종료 코드 0 이면 모든 검증을 통과한 것입니다. Docker 가 필요합니다. 자세한 내용은 `supabase/verification/README.md` 를 참고하십시오.
 
 ---
 

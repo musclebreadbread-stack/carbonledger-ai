@@ -52,9 +52,6 @@
     "tailwind-merge": "^2.3.0",
     "zod": "^3.23.0"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": ["@swc/core", "esbuild", "sharp", "@parcel/watcher", "unrs-resolver"]
-  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.0",
     "@playwright/test": "^1.45.0",

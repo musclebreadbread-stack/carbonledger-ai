@@ -1,4 +1,4 @@
-ignoredBuiltDependencies:
+onlyBuiltDependencies:
   - sharp
   - unrs-resolver
   - "@swc/core"

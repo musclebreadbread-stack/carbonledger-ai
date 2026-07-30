@@ -490,6 +490,7 @@
     "signature_algorithm": "Algorithm: {algorithm}",
     "signature_note": "A signature verifies that the approved emission figure has not changed since sign-off. Without a configured signing key it proves integrity only, not signer authenticity.",
     "rejected_note": "A rejected item ends without the chain reaching 100%.",
+    "readonly_note": "This screen is read-only for now. The rule for which action each stage may take exists in the library layer but is not yet wired to server actions.",
     "returned_note": "A return for revision sends the item back to the author without closing the chain.",
     "stages": {
       "author": "Authoring",

@@ -490,6 +490,7 @@
     "signature_algorithm": "算法：{algorithm}",
     "signature_note": "电子签名用于验证已审批的排放数值未被更改。未配置签名密钥时仅保证完整性，不保证签名者真实性。",
     "rejected_note": "被退回的事项在流程未达到100%的状态下结束。",
+    "readonly_note": "本页面目前仅供查看。各阶段允许执行的处理规则已在库层实现，但尚未接入服务器操作。",
     "returned_note": "要求重新提交不会结束流程，而是将事项退回编制人。",
     "stages": {
       "author": "编制",

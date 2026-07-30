@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Implement the core GHG calculation engine, unit conversion service, emission factor management, and audit trail system. This is the computational heart of the platform implementing ISO 14064 / GHG Protocol compliant calculations.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create src/lib/calculation-engine/index.ts - Main engine barrel export",
     "Create src/lib/calculation-engine/types.ts - Type definitions: CalculationInput (activity_data, unit, emission_source_type, scope, fuel_type), CalculationResult (co2e_kg, co2_kg, ch4_kg, n2o_kg, formula_used, calculation_steps[], emission_factor_used, uncertainty_pct, data_quality_score), CalculationStep (description, input_value, input_unit, factor, output_value, output_unit)",
@@ -38,5 +38,5 @@
     "Run pnpm build and confirm no TypeScript errors"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 42 tests pass (12 calculation engine, 30 unit conversion). Fixed Drizzle ORM table extraConfig to use object format instead of array. Korea MOE grid factor 0.4594 kgCO2/kWh used for Scope 2 location-based."
 }

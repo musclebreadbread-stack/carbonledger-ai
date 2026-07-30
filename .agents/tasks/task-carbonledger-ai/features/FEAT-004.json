@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "feat",
   "description": "Implement authentication, authorization (RBAC), middleware, API routes, and the main dashboard UI shell with navigation. This creates the application's user-facing structure and security layer.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create src/lib/auth/index.ts - Supabase auth helpers: createClient (server), createBrowserClient, getSession, getUser, signIn, signOut, signUp",
     "Create src/lib/auth/roles.ts - Role-based access control: Role enum (super_admin, company_admin, site_admin, reviewer, auditor, viewer, consultant), Permission enum (read, write, approve, admin, audit), RolePermissionMap defining what each role can do, hasPermission(user, permission) helper, requireRole middleware factory",
@@ -45,5 +45,5 @@
     "Run pnpm lint to check for code quality issues"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Next.js 16 deprecates middleware in favor of proxy. Middleware still works but shows warning. Supabase SSR cookie types need explicit typing for setAll parameter. Route groups work correctly for auth and dashboard layouts."
 }

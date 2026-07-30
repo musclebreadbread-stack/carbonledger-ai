@@ -93,10 +93,17 @@ test.describe("site map", () => {
     await page.goto("/sites");
 
     await expect(page.getByText(ko.sites.not_geocoded).first()).toBeVisible();
-    // And the count of un-plottable sites is surfaced to the user.
-    await expect(
-      page.getByText(String(TOTAL_SITES - PLOTTABLE_SITES), { exact: false }).first()
-    ).toBeVisible();
+
+    /*
+     * Assert the fully interpolated sentence, not just that the digit appears
+     * somewhere: an unsubstituted ICU placeholder would still contain the rest
+     * of the message and would sail past a looser check.
+     */
+    const expected = ko.sites.no_coordinates.replace(
+      "{count}",
+      String(TOTAL_SITES - PLOTTABLE_SITES)
+    );
+    await expect(page.getByText(expected)).toBeVisible();
   });
 
   test("the site view is reachable from the sidebar", async ({ page }) => {

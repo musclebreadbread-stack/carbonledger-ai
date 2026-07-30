@@ -49,9 +49,12 @@ export default function SiteMapView({ sites, height }: SiteMapViewProps) {
   const geolocated = React.useMemo(() => withCoordinates(sites), [sites]);
 
   /*
-   * Translation lookups are read inside the effect below. They are wrapped in
-   * refs-by-way-of-useCallback so the effect does not re-run (and tear the map
-   * down) on every render just because the translator identity changed.
+   * Popup text is built inside the effect below, so these resolvers are part of
+   * its dependency list. That is safe: next-intl memoises the translator on the
+   * intl context, so the identity only changes when the locale actually changes
+   * — at which point rebuilding the map is exactly what we want, because the
+   * popups have to come back in the new language. Do not "optimise" these into
+   * refs; that would leave stale translations in the popups after a switch.
    */
   const resolveName = React.useCallback(
     (key: string) => (tNames.has(key) ? tNames(key) : key),

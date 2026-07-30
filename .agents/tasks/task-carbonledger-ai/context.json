@@ -1,0 +1,31 @@
+{
+  "project_type": "Next.js 15 Enterprise SaaS - Carbon Accounting Platform",
+  "language": "TypeScript",
+  "build_system": "pnpm with Next.js 15, Turbopack for dev",
+  "test_framework": "Vitest for unit/integration, Playwright for E2E",
+  "build_command": "pnpm build",
+  "test_command": "pnpm test",
+  "verification_instructions": "1. Run pnpm install to install deps. 2. Run pnpm build to verify Next.js builds. 3. Run pnpm test to run vitest tests. 4. Run pnpm lint to check linting.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "1. cd /projects/sandbox/carbonledger-ai. 2. pnpm install. 3. Copy .env.example to .env.local. 4. pnpm dev to start development server.",
+  "environment_constraints": "OPEN_INTERNET - full access to npm registry. Node.js v22. pnpm 10.28.1 available. No Docker daemon likely available but Dockerfile can be created for documentation. IMPORTANT: After installing Next.js, must read node_modules/next/dist/docs/ for latest API documentation before writing code.",
+  "contribution_requirements": "Must read node_modules/next/dist/docs/ after installing Next.js to understand latest APIs and breaking changes. Follow AGENTS.md workspace rule.",
+  "key_patterns": "Greenfield project - establishing patterns: Clean Architecture with DDD, Repository Pattern, SOLID principles. Multi-tenant SaaS with RLS. Drizzle ORM for type-safe DB access. shadcn/ui for UI components. Server Components by default, Client Components only when needed.",
+  "relevant_files": [
+    "package.json",
+    "next.config.ts",
+    "tsconfig.json",
+    "tailwind.config.ts",
+    "drizzle.config.ts",
+    "src/app/layout.tsx",
+    "src/app/page.tsx",
+    "src/lib/db/schema/",
+    "src/lib/calculation-engine/",
+    "src/lib/auth/",
+    "src/app/api/",
+    "src/app/(dashboard)/",
+    "vitest.config.ts",
+    "playwright.config.ts"
+  ],
+  "directory_structure": "src/app/ - Next.js App Router pages and API routes. src/lib/ - shared libraries (db, auth, calculation engine, utils). src/components/ - React components (ui/ for shadcn, features/ for domain). src/types/ - TypeScript type definitions. src/constants/ - emission factors, unit conversions. docs/ - documentation. tests/ - test files. supabase/ - Supabase migrations and config."
+}

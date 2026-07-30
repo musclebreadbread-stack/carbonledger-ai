@@ -1,0 +1,7 @@
+{
+  "task_id": "task-carbonledger-ai",
+  "task_description": "Build CarbonLedger AI - an enterprise-grade GHG (Scope 1/2/3) management SaaS platform compliant with ISO 14064, GHG Protocol, and IPCC standards. Next.js 15 + React 19 + Supabase + Drizzle ORM + TypeScript. Covers: project setup, database schema, calculation engine, auth/RBAC, dashboard UI, API routes, i18n, documentation, CI/CD, Docker, and compliance checklists.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}

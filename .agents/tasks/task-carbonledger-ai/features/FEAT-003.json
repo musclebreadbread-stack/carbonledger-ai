@@ -1,0 +1,42 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Implement the core GHG calculation engine, unit conversion service, emission factor management, and audit trail system. This is the computational heart of the platform implementing ISO 14064 / GHG Protocol compliant calculations.",
+  "status": "in_progress",
+  "steps": [
+    "Create src/lib/calculation-engine/index.ts - Main engine barrel export",
+    "Create src/lib/calculation-engine/types.ts - Type definitions: CalculationInput (activity_data, unit, emission_source_type, scope, fuel_type), CalculationResult (co2e_kg, co2_kg, ch4_kg, n2o_kg, formula_used, calculation_steps[], emission_factor_used, uncertainty_pct, data_quality_score), CalculationStep (description, input_value, input_unit, factor, output_value, output_unit)",
+    "Create src/lib/calculation-engine/calculator.ts - Core calculation functions: calculateScope1Stationary (fuel combustion using mass/volume * NCV * EF), calculateScope1Mobile (vehicle fuel * EF), calculateScope1Fugitive (refrigerant charge * leak rate * GWP), calculateScope2Location (electricity_kwh * grid_EF), calculateScope2Market (electricity_kwh * supplier_EF or residual_mix), calculateScope3 (spend-based, activity-based, hybrid methods). Each function returns full CalculationResult with formula breakdown",
+    "Create src/lib/calculation-engine/gwp.ts - Global Warming Potential values: GWP_AR5 and GWP_AR6 objects mapping gas names to 100-year GWP values. Include CO2, CH4, N2O, SF6, and all common HFCs (R22=1810, R134a=1430, R410A=2088, R32=675, R404A=3922, etc.)",
+    "Create src/lib/calculation-engine/uncertainty.ts - Uncertainty calculation: propagateUncertainty (combining emission factor uncertainty with activity data uncertainty using error propagation rules per IPCC), assessDataQuality (scoring 1-5 based on data source, completeness, temporal correlation, geographic correlation, technological correlation per GHG Protocol guidance)",
+    "Create src/lib/unit-conversion/index.ts - Unit conversion service: convertUnit(value, fromUnit, toUnit) supporting all energy units (kWh, MJ, GJ, TJ, kcal, BTU, therm), mass units (kg, t, lb, g), volume units (L, m3, gallon, barrel), distance units (km, mile, nautical_mile), emission units (kgCO2e, tCO2e, MtCO2e). Include conversion factor lookup table and conversion chain resolution for indirect conversions",
+    "Create src/lib/unit-conversion/constants.ts - All conversion factors organized by category with SI base units",
+    "Create src/constants/emission-factors/korea-moe.ts - Korean Ministry of Environment emission factors: grid electricity (latest year), LNG, LPG, gasoline, diesel, kerosene, heavy oil, city gas, propane, butane with proper units (kgCO2/unit). Include Scope 1 fuel factors and Scope 2 grid factor",
+    "Create src/constants/emission-factors/ipcc-2006.ts - IPCC 2006 default emission factors for major fuel types with CO2, CH4, N2O factors separately",
+    "Create src/constants/emission-factors/defra-2023.ts - UK DEFRA conversion factors for business travel, freight, waste, materials",
+    "Create src/constants/emission-factors/index.ts - Barrel export and EmissionFactorRegistry class that provides versioned lookup",
+    "Create src/lib/audit/index.ts - Audit trail service: createAuditEntry(table, recordId, action, oldValue, newValue, userId, reason), getAuditHistory(table, recordId), formatAuditReport(entries). All entries are immutable (append-only pattern)",
+    "Create src/lib/audit/types.ts - AuditEntry type, AuditAction enum",
+    "Create src/lib/mrv/index.ts - MRV (Measurement, Reporting, Verification) engine: MRVPipeline class with stages: measure(rawData) -> calculate(measurements) -> verify(calculations) -> report(verified_data). Each stage produces a traceable output with data lineage",
+    "Create src/lib/mrv/data-lineage.ts - DataLineageTracker class: tracks data from source through all transformations to final report output, produces lineage graph",
+    "Create tests/lib/calculation-engine/calculator.test.ts - Vitest tests covering: Scope 1 fuel combustion (LNG 1000 Nm3 -> expected CO2e), Scope 1 fugitive (R410A leak), Scope 2 location-based (1000 kWh Korea grid), Scope 2 market-based, multiple Scope 3 categories. Each test verifies correct formula application and proper unit handling",
+    "Create tests/lib/unit-conversion/index.test.ts - Tests for unit conversion: energy conversions (kWh to MJ, GJ to TJ), mass conversions (kg to t), round-trip conversions (value -> convert -> convert back = original)"
+  ],
+  "acceptance_criteria": [
+    "Calculation engine correctly computes Scope 1 emissions for fuel combustion: e.g., 1000 kWh natural gas * emission factor = expected kgCO2e",
+    "Calculation engine correctly applies GWP values for fugitive emissions",
+    "Scope 2 supports both location-based and market-based methods",
+    "Every calculation result includes: formula used, step-by-step breakdown, emission factor reference, uncertainty estimate",
+    "Unit conversion handles all specified units with less than 0.01% floating point error",
+    "Audit trail produces immutable, timestamped entries with before/after values",
+    "MRV pipeline traces data from measurement to report",
+    "All vitest tests pass: pnpm test exits with code 0",
+    "pnpm build still succeeds"
+  ],
+  "verification": [
+    "Run pnpm test and confirm all calculation engine and unit conversion tests pass",
+    "Run pnpm build and confirm no TypeScript errors"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

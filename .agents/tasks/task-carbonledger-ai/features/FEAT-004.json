@@ -1,0 +1,49 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Implement authentication, authorization (RBAC), middleware, API routes, and the main dashboard UI shell with navigation. This creates the application's user-facing structure and security layer.",
+  "status": "in_progress",
+  "steps": [
+    "Create src/lib/auth/index.ts - Supabase auth helpers: createClient (server), createBrowserClient, getSession, getUser, signIn, signOut, signUp",
+    "Create src/lib/auth/roles.ts - Role-based access control: Role enum (super_admin, company_admin, site_admin, reviewer, auditor, viewer, consultant), Permission enum (read, write, approve, admin, audit), RolePermissionMap defining what each role can do, hasPermission(user, permission) helper, requireRole middleware factory",
+    "Create src/middleware.ts - Next.js middleware: check auth session on protected routes, redirect to /login if not authenticated, add company_id to request headers for RLS, rate limiting headers",
+    "Create src/app/(auth)/login/page.tsx - Login page with email/password form, SSO options, remember me, redirect to dashboard on success",
+    "Create src/app/(auth)/register/page.tsx - Registration page with company creation flow",
+    "Create src/app/(auth)/layout.tsx - Auth layout (centered card, no sidebar)",
+    "Create src/app/(dashboard)/layout.tsx - Dashboard layout with: responsive sidebar navigation (collapsible), top header with user menu/notifications/company switcher, main content area. Navigation items: Dashboard, Emissions (Scope1, Scope2, Scope3), Emission Factors, Reports, Suppliers, Targets, Settings, Audit Log",
+    "Create src/app/(dashboard)/page.tsx - Main dashboard with KPI cards grid: Total Emissions (tCO2e), Scope 1/2/3 breakdown, YoY change %, reduction progress, intensity metrics. Below KPIs: emissions trend chart placeholder (Recharts), scope breakdown donut chart, top 10 emission sources table, monthly comparison bar chart. Use loading skeletons for async data",
+    "Create src/app/(dashboard)/emissions/page.tsx - Emissions list page with filters (scope, site, period, status), data table with sortable columns, add new emission record button",
+    "Create src/app/(dashboard)/emissions/new/page.tsx - New emission record form: scope selector, source type, activity data input, unit selector, auto-calculate button that calls calculation engine, evidence upload, submit for approval",
+    "Create src/app/(dashboard)/emission-factors/page.tsx - Emission factor library browser: filter by provider/version/category, search, view factor details, compare versions",
+    "Create src/app/(dashboard)/reports/page.tsx - Report generation page: select report type (ISO14064, CDP, GRI, etc.), period, scope, generate button, download list of generated reports",
+    "Create src/app/(dashboard)/audit-log/page.tsx - Audit log viewer: filterable timeline of all system changes, expandable entries showing before/after",
+    "Create src/app/(dashboard)/settings/page.tsx - Settings page: company profile, sites/facilities management, user management, emission factor version selection, API keys",
+    "Create src/components/ui/ - Set up shadcn/ui components: button, card, input, select, table, dialog, dropdown-menu, tabs, badge, toast, skeleton, sheet, form, label, separator, avatar, command, popover using proper shadcn/ui pattern (copy component code directly rather than importing from package)",
+    "Create src/components/features/sidebar.tsx - Sidebar navigation component with icons, active state, collapse toggle, role-based menu item visibility",
+    "Create src/components/features/header.tsx - Top header with breadcrumbs, search command palette trigger, notification bell, user avatar dropdown, dark mode toggle, language selector",
+    "Create src/components/features/kpi-card.tsx - Reusable KPI card component: value, label, trend indicator (up/down arrow with color), comparison text",
+    "Create src/components/features/data-table.tsx - Reusable data table with: sorting, filtering, pagination, row selection, column visibility toggle, export button",
+    "Create src/app/api/v1/emissions/route.ts - REST API for emissions: GET (list with filters/pagination), POST (create new record, triggers calculation engine)",
+    "Create src/app/api/v1/emission-factors/route.ts - REST API for emission factors: GET (list/search with version filter)",
+    "Create src/app/api/v1/reports/route.ts - REST API for reports: GET (list), POST (generate report)",
+    "Create src/app/api/v1/audit-log/route.ts - REST API for audit log: GET only (read-only, no mutation endpoints)",
+    "Create src/app/api/v1/calculate/route.ts - Calculation API: POST with activity data, returns CalculationResult with full breakdown",
+    "Create src/app/api/v1/organizations/route.ts - Organization management API: GET/POST for companies, sites, facilities"
+  ],
+  "acceptance_criteria": [
+    "All pages render without errors (pnpm build succeeds)",
+    "Dashboard layout has functional sidebar navigation and header",
+    "API routes are properly typed and follow REST conventions",
+    "Auth flow is wired with Supabase client (will need real credentials to function, but code is correct)",
+    "RBAC system properly restricts access based on role",
+    "Dashboard page shows KPI cards with placeholder/skeleton data",
+    "All shadcn/ui components are properly set up and usable",
+    "Responsive design works (sidebar collapses on mobile)"
+  ],
+  "verification": [
+    "Run pnpm build and confirm all pages and API routes compile without errors",
+    "Run pnpm lint to check for code quality issues"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

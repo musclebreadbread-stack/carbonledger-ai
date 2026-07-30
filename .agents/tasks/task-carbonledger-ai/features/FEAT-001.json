@@ -1,0 +1,42 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Initialize Next.js 15 project with all configuration files, dependency installation, and project structure. This establishes the foundation for all subsequent features.",
+  "status": "in_progress",
+  "steps": [
+    "Create package.json with all required dependencies: next@latest, react@19, typescript, tailwindcss, @tailwindcss/postcss, shadcn/ui deps (@radix-ui components), drizzle-orm, drizzle-kit, @supabase/supabase-js, @supabase/ssr, recharts, leaflet, openai, pdf-lib, exceljs, papaparse, zod, next-intl (i18n), next-themes (dark mode), lucide-react (icons), vitest, @vitejs/plugin-react, playwright, @testing-library/react, eslint, prettier",
+    "Create tsconfig.json with strict mode, path aliases (@/ for src/), and proper Next.js 15 settings",
+    "Create next.config.ts (note: .ts extension for Next.js 15) with appropriate settings for the platform",
+    "Create tailwind.config.ts with custom theme colors for the carbon platform (greens, blues for sustainability theme), dark mode class strategy",
+    "Create postcss.config.mjs with tailwindcss plugin",
+    "Create drizzle.config.ts pointing to src/lib/db/schema/ with PostgreSQL dialect and supabase connection",
+    "Create vitest.config.ts with React plugin, path aliases, and coverage settings",
+    "Create playwright.config.ts with basic E2E test configuration",
+    "Create .eslintrc.json with Next.js recommended rules",
+    "Create .prettierrc with consistent formatting rules",
+    "Create .gitignore for Next.js project (node_modules, .next, .env.local, etc.)",
+    "Create .env.example with all required environment variables (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL, OPENAI_API_KEY, etc.)",
+    "Create the folder structure: src/app/, src/lib/, src/components/ui/, src/components/features/, src/types/, src/constants/, src/hooks/, src/middleware.ts, docs/, tests/, supabase/migrations/",
+    "Create src/app/globals.css with Tailwind directives and CSS custom properties for theming",
+    "Create src/app/layout.tsx as root layout with ThemeProvider, font setup, and metadata",
+    "Create src/app/page.tsx as landing page placeholder",
+    "Create src/lib/utils.ts with cn() utility function for tailwind class merging",
+    "Run pnpm install to install all dependencies",
+    "CRITICAL: After pnpm install, read node_modules/next/dist/docs/ directory to check for documentation about Next.js latest APIs and adjust any code accordingly",
+    "Run pnpm build to verify the project compiles successfully"
+  ],
+  "acceptance_criteria": [
+    "pnpm install completes without errors",
+    "pnpm build completes successfully producing a .next/ output",
+    "All configuration files are valid and properly formatted",
+    "TypeScript compilation passes with no errors",
+    "The project structure follows Next.js 15 App Router conventions",
+    ".env.example contains all necessary environment variable placeholders"
+  ],
+  "verification": [
+    "Run pnpm install && pnpm build and confirm exit code 0",
+    "Run pnpm lint and confirm no critical errors"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

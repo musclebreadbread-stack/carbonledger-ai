@@ -1,0 +1,48 @@
+{
+  "id": "FEAT-005",
+  "type": "feat",
+  "description": "Create internationalization (i18n) support, documentation suite (README, deployment guide, user manual, checklists), CI/CD pipeline (GitHub Actions), Docker development environment, sample data, and Supabase RLS policies/SQL migrations. This completes the platform deliverables.",
+  "status": "in_progress",
+  "steps": [
+    "Create src/i18n/ directory with: request.ts (next-intl server config), config.ts (supported locales: ko, en, ja, zh), routing.ts (locale routing setup)",
+    "Create src/messages/ko.json - Korean translations for all UI strings (navigation, dashboard labels, form fields, buttons, status values, error messages)",
+    "Create src/messages/en.json - English translations",
+    "Create src/messages/ja.json - Japanese translations (key navigation and dashboard labels)",
+    "Create src/messages/zh.json - Chinese translations (key navigation and dashboard labels)",
+    "Create supabase/migrations/0002_rls_policies.sql - Row Level Security policies: companies (users can only access their own company), emission_records (filtered by company_id, role-based write access), audit_logs (read-only for all, no delete/update), emission_factors (read for all, write for admin only), reports (company-scoped), suppliers (company-scoped). Enable RLS on all tables",
+    "Create supabase/seed.sql - Sample data for a Korean manufacturing company: company profile, 2 sites, 4 facilities, emission sources (boilers, vehicles, electricity, refrigerants), 12 months of emission records across all scopes, sample emission factors (Korea MOE 2023), sample users with different roles, sample workflow instances, sample targets",
+    "Create .github/workflows/ci.yml - GitHub Actions CI pipeline: trigger on push/PR to main, jobs: lint (eslint), typecheck (tsc --noEmit), test (vitest run), build (next build), with Node.js 22, pnpm caching, artifact upload for build output",
+    "Create .github/workflows/deploy.yml - Vercel deployment workflow: trigger on push to main, deploy to Vercel using vercel CLI, environment variables from secrets",
+    "Create Dockerfile - Multi-stage build: Stage 1 (deps) install with pnpm, Stage 2 (build) run next build, Stage 3 (runner) minimal production image with standalone output. Also create docker-compose.yml with services: app (Next.js), db (PostgreSQL 15), supabase-studio (for local dev)",
+    "Create docker-compose.yml - Development environment with PostgreSQL, app service, and volume mounts",
+    "Create docs/README.md - Comprehensive README: project overview, architecture diagram (ASCII), tech stack, features list, getting started guide, environment variables table, development commands, deployment instructions, contributing guidelines, license",
+    "Create docs/deployment-guide.md - Step-by-step Vercel deployment: prerequisites, Supabase project setup, environment variables configuration, domain setup, CI/CD pipeline explanation, monitoring setup",
+    "Create docs/user-manual.md - End-user documentation: login, dashboard overview, adding emission records, managing emission factors, generating reports, supplier portal usage, workflow approval process",
+    "Create docs/admin-manual.md - Administrator guide: user management, role assignment, organization setup, emission factor version management, system configuration, backup procedures",
+    "Create docs/api-documentation.md - API reference: all endpoints with request/response examples, authentication, pagination, filtering, error codes, rate limits, webhook configuration",
+    "Create docs/iso14064-checklist.md - ISO 14064 third-party verification readiness checklist: organizational boundaries, operational boundaries, quantification methodology, data management, uncertainty assessment, reporting, documentation requirements. Map each requirement to the platform feature that addresses it",
+    "Create docs/ghg-protocol-checklist.md - GHG Protocol conformance checklist: relevance, completeness, consistency, transparency, accuracy. Cover Corporate Standard, Scope 2 Guidance, and Corporate Value Chain Standard requirements",
+    "Create docs/architecture.md - System architecture: component diagram, data flow, security model, multi-tenancy approach, calculation engine design, MRV pipeline, integration points",
+    "Create docs/database-schema.md - Database documentation: ERD description (text-based), table descriptions, relationship explanations, indexing strategy, partitioning approach for large emission_records table",
+    "Ensure pnpm build passes with all i18n and new files in place"
+  ],
+  "acceptance_criteria": [
+    "All 4 language translation files contain consistent keys covering at minimum: navigation items, dashboard labels, common actions (save, cancel, delete, submit, approve, reject)",
+    "Supabase RLS SQL is valid PostgreSQL with proper policy definitions",
+    "Sample data SQL inserts valid records that reference each other correctly via UUIDs",
+    "GitHub Actions CI workflow is valid YAML that would run on push/PR",
+    "Dockerfile builds a valid multi-stage image definition",
+    "docker-compose.yml defines working service composition",
+    "README.md is comprehensive (over 200 lines) covering all major aspects of the project",
+    "ISO 14064 checklist maps standard requirements to platform features",
+    "GHG Protocol checklist covers all three standards (Corporate, Scope 2, Value Chain)",
+    "pnpm build succeeds with all additions"
+  ],
+  "verification": [
+    "Run pnpm build and confirm successful compilation with i18n setup",
+    "Validate GitHub Actions YAML syntax",
+    "Verify Dockerfile syntax is correct"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

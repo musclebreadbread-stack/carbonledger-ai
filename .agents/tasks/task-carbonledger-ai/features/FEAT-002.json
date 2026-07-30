@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Create comprehensive database schema using Drizzle ORM covering all entities: organizations, facilities, emission sources, emission records, emission factors, audit trails, users/roles, workflows, reports, suppliers, and all supporting tables. This is the data foundation for the entire platform.",
+  "status": "pending",
+  "steps": [
+    "Create src/lib/db/index.ts - Drizzle database client initialization with connection pooling",
+    "Create src/lib/db/schema/index.ts - barrel export for all schema modules",
+    "Create src/lib/db/schema/organizations.ts - Multi-tenant organization hierarchy: companies table (id, name, industry, country, fiscal_year_start, created_at, updated_at, deleted_at), sites table (id, company_id FK, name, address, latitude, longitude, grid_region), facilities table (id, site_id FK, name, type), production_lines table (id, facility_id FK, name), equipment table (id, line_id FK, name, type, capacity, refrigerant_type, refrigerant_charge_kg)",
+    "Create src/lib/db/schema/users.ts - Users and RBAC: users table (id references auth.users, email, name, role enum[super_admin, company_admin, site_admin, reviewer, auditor, viewer, consultant], company_id FK, active, mfa_enabled, created_at), user_site_access table for granular permissions",
+    "Create src/lib/db/schema/emission-sources.ts - Emission source registry: emission_sources table (id, equipment_id FK, scope enum[1,2,3], category, sub_category, fuel_type, source_description, is_active, measurement_method)",
+    "Create src/lib/db/schema/emission-factors.ts - Versioned emission factor library: emission_factor_sets table (id, name, provider enum[korea_moe, ipcc, defra, epa, iea, ecoinvent, custom], version, valid_from, valid_to, is_active), emission_factors table (id, set_id FK, category, fuel_type, unit_numerator, unit_denominator, co2_factor, ch4_factor, n2o_factor, hfc_factor, pfc_factor, sf6_factor, gwp_ar, uncertainty_pct, source_reference)",
+    "Create src/lib/db/schema/emission-records.ts - Core emission data: emission_records table (id, source_id FK, company_id FK, site_id FK, period_start, period_end, scope, category, activity_data_value, activity_data_unit, emission_factor_id FK, emission_factor_value, co2e_kg, co2_kg, ch4_kg, n2o_kg, calculation_formula, calculation_detail_json, evidence_url, status enum[draft, submitted, reviewed, approved, rejected], submitted_by, reviewed_by, approved_by, created_at, updated_at). Also emission_record_attachments table for evidence files",
+    "Create src/lib/db/schema/scope3.ts - Scope 3 specific tables: scope3_categories table (category_number 1-15, name, description, calculation_methods), supplier_emissions table (id, supplier_id FK, category, period, spend_amount, emission_factor_id, co2e_kg, data_quality_score), scope3_records table extending emission_records with category-specific fields",
+    "Create src/lib/db/schema/audit-trail.ts - Immutable audit log: audit_logs table (id serial, table_name, record_id, action enum[create, update, delete, approve, reject, submit], old_value jsonb, new_value jsonb, changed_by, changed_at, reason, ip_address). This table must have no UPDATE or DELETE policies - append only",
+    "Create src/lib/db/schema/workflows.ts - Approval workflow: workflow_definitions table (id, name, steps jsonb array of {role, action}), workflow_instances table (id, definition_id FK, record_type, record_id, current_step, status enum[pending, in_progress, approved, rejected], created_by), workflow_steps table (id, instance_id FK, step_number, assignee_id, action, comment, digital_signature, completed_at)",
+    "Create src/lib/db/schema/reports.ts - Report generation tracking: reports table (id, company_id FK, type enum[iso14064, cdp, sbti, issb, gri, tcfd, csrd, esg, sustainability], period_start, period_end, status, generated_by, generated_at, file_url, metadata jsonb)",
+    "Create src/lib/db/schema/suppliers.ts - Supply chain management: suppliers table (id, company_id FK, name, contact_email, industry, country, status enum[active, pending, inactive]), supplier_data_requests table (id, supplier_id FK, period, category, status, due_date, submitted_at, data jsonb)",
+    "Create src/lib/db/schema/targets.ts - Reduction targets: reduction_targets table (id, company_id FK, target_type enum[absolute, intensity, sbti], base_year, target_year, base_emissions, target_emissions, target_reduction_pct, scope, status, methodology), target_progress table (id, target_id FK, year, actual_emissions, progress_pct)",
+    "Create src/lib/db/schema/unit-conversions.ts - Unit conversion registry: unit_conversions table (id, from_unit, to_unit, conversion_factor, category, source)",
+    "Create src/types/database.ts - Export all inferred types using Drizzle's $inferSelect and $inferInsert for each table",
+    "Create supabase/migrations/0001_initial_schema.sql - Generate SQL migration from the Drizzle schema (drizzle-kit generate command or manual SQL translation of all tables with proper constraints, indexes, and comments)"
+  ],
+  "acceptance_criteria": [
+    "All schema files compile without TypeScript errors",
+    "Schema covers: organizations (5 levels), users/roles (7 roles), emission sources, emission factors (versioned), emission records (all scopes), audit trail (append-only), workflows (4-step approval), reports, suppliers, targets, unit conversions",
+    "All tables use UUID primary keys, have created_at/updated_at timestamps, support soft delete where appropriate",
+    "Foreign key relationships are properly defined with cascading rules",
+    "Indexes are defined for frequently queried columns (company_id, period, scope, status)",
+    "The schema supports multi-tenancy through company_id on all relevant tables",
+    "pnpm build still passes after schema additions"
+  ],
+  "verification": [
+    "Run pnpm build and confirm TypeScript compilation succeeds with all schema files",
+    "Verify all schema files export proper Drizzle table definitions by checking imports resolve"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

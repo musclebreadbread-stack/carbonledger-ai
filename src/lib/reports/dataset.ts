@@ -17,7 +17,11 @@ import { getDashboardData } from "@/lib/dashboard/sample-data";
 import type { DashboardData } from "@/lib/dashboard/types";
 import { getScope3Overview } from "@/lib/scope3/sample-data";
 import type { Scope3Overview } from "@/lib/scope3/types";
-import { getSuppliersOverview } from "@/lib/suppliers/sample-data";
+// From the store rather than the fixtures directly: `/suppliers` now records
+// verifications there, and a report that ignored them would contradict the page
+// the user just approved a figure on — the exact failure this file's opening
+// comment is about.
+import { getSuppliersOverview } from "@/lib/suppliers/store";
 import type { SuppliersOverview } from "@/lib/suppliers/types";
 import { getTargetsOverview } from "@/lib/targets/sample-data";
 import type { TargetsOverview } from "@/lib/targets/types";

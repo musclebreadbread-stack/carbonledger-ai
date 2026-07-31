@@ -56,8 +56,53 @@ export interface Supplier {
   annualSpendMillionKrw: number | null;
 }
 
+/**
+ * Reasons a submission may be rejected.
+ *
+ * An allowlist rather than free text, because the reason arrives from a form and
+ * is rendered back through `supplier_rejection_reasons.<key>`: an unchecked value
+ * would either surface a raw string where a translation is expected, or let a
+ * caller write arbitrary text into the audit trail. Every key here must exist in
+ * all four catalogues, which `tests/lib/suppliers/transitions.test.ts` checks.
+ */
+export const SUPPLIER_REJECTION_REASON_KEYS = [
+  "no_methodology_disclosed",
+  "missing_supporting_evidence",
+  "boundary_mismatch",
+  "outdated_emission_factors",
+  "inconsistent_with_prior_period",
+] as const;
+
+export type SupplierRejectionReasonKey = (typeof SUPPLIER_REJECTION_REASON_KEYS)[number];
+
+export function isSupplierRejectionReasonKey(value: unknown): value is SupplierRejectionReasonKey {
+  return (
+    typeof value === "string" &&
+    (SUPPLIER_REJECTION_REASON_KEYS as readonly string[]).includes(value)
+  );
+}
+
+/** Data quality is assessed on a 1-5 scale, matching `supplier_emissions.data_quality`. */
+export const MIN_DATA_QUALITY = 1;
+export const MAX_DATA_QUALITY = 5;
+
+export function isDataQualityScore(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= MIN_DATA_QUALITY &&
+    value <= MAX_DATA_QUALITY
+  );
+}
+
 export interface SupplierDataRequest {
   id: string;
+  /**
+   * Owning tenant, mirroring `supplier_data_requests.company_id`. Every policy on
+   * the table in `0003_rls_policies_phase2.sql` is scoped by it, so a Server
+   * Action has to check it too.
+   */
+  companyId: string;
   supplierId: string;
   /** Reporting period the request covers, as `YYYY` or `YYYY-MM`. */
   period: string;
@@ -74,8 +119,15 @@ export interface SupplierDataRequest {
   reportedEmissions: number | null;
   /** Data quality 1-5 as assessed on verification, null before that. */
   dataQuality: number | null;
+  /**
+   * ISO-8601 instant we verified or rejected the submission, null while the
+   * decision is outstanding. Distinct from `submittedAt`, which is the supplier's
+   * side of the exchange: the gap between the two is our own turnaround, and
+   * `isOverdue` deliberately does not blame the supplier for it.
+   */
+  verifiedAt: string | null;
   /** Key under `supplier_rejection_reasons`, set when `rejected`. */
-  rejectionReasonKey: string | null;
+  rejectionReasonKey: SupplierRejectionReasonKey | string | null;
   /**
    * Id of the request this one replaces, when it was raised as a re-request
    * (재요청). Null for a first request. Makes the chain of attempts explicit
@@ -255,6 +307,71 @@ export function aggregateByCategory(
 }
 
 /**
+ * Marks a submission verified (승인) with the data quality assessed at
+ * verification.
+ *
+ * Pure, like `reRequest`: returns the new row and lets the caller persist it.
+ *
+ * Throws unless the request is `submitted`. Two separate reasons, both worth
+ * refusing over: verifying something the supplier has not sent would put a null
+ * figure into the reported Scope 3 roll-up, and re-verifying an already terminal
+ * request would let a rejection be quietly overturned without either decision
+ * being visible.
+ */
+export function verifyRequest(
+  request: SupplierDataRequest,
+  options: { dataQuality: number; at: string }
+): SupplierDataRequest {
+  if (request.status !== "submitted") {
+    throw new Error(
+      `Only a submitted request can be verified; ${request.id} is ${request.status}`
+    );
+  }
+  if (!isDataQualityScore(options.dataQuality)) {
+    throw new Error(
+      `Data quality must be an integer ${MIN_DATA_QUALITY}-${MAX_DATA_QUALITY}, got ${options.dataQuality}`
+    );
+  }
+  return {
+    ...request,
+    status: "verified",
+    dataQuality: options.dataQuality,
+    // A verification clears any earlier rejection note; the rejected attempt it
+    // superseded keeps its own reason on its own row.
+    rejectionReasonKey: null,
+    verifiedAt: options.at,
+  };
+}
+
+/**
+ * Marks a submission rejected (반려) with a stated reason.
+ *
+ * `reportedEmissions` is left in place on purpose. The rejected figure is
+ * evidence — of what the supplier claimed and of why it was not accepted — and
+ * `aggregateByCategory` already excludes rejected rows from the roll-up, so
+ * keeping it costs nothing and erasing it would destroy the trail.
+ */
+export function rejectRequest(
+  request: SupplierDataRequest,
+  options: { reasonKey: SupplierRejectionReasonKey; at: string }
+): SupplierDataRequest {
+  if (request.status !== "submitted") {
+    throw new Error(
+      `Only a submitted request can be rejected; ${request.id} is ${request.status}`
+    );
+  }
+  if (!isSupplierRejectionReasonKey(options.reasonKey)) {
+    throw new Error(`Unknown rejection reason: ${String(options.reasonKey)}`);
+  }
+  return {
+    ...request,
+    status: "rejected",
+    rejectionReasonKey: options.reasonKey,
+    verifiedAt: options.at,
+  };
+}
+
+/**
  * Builds the replacement request for a rejected submission (재요청).
  *
  * Pure: it returns the new request rather than mutating anything, so the caller
@@ -276,6 +393,7 @@ export function reRequest(
   }
   return {
     id: options.id,
+    companyId: request.companyId,
     supplierId: request.supplierId,
     period: request.period,
     categoryNumber: request.categoryNumber,
@@ -284,6 +402,7 @@ export function reRequest(
     submittedAt: null,
     reportedEmissions: null,
     dataQuality: null,
+    verifiedAt: null,
     rejectionReasonKey: null,
     supersedesRequestId: request.id,
   };

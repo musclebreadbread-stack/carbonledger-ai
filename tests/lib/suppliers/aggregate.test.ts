@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { SAMPLE_COMPANY_ID } from "@/lib/auth/actor";
 import { SAMPLE_AS_OF, buildSampleSuppliersOverview } from "@/lib/suppliers/sample-data";
 import {
   aggregateByCategory,
@@ -12,6 +13,7 @@ import {
 function request(overrides: Partial<SupplierDataRequest> = {}): SupplierDataRequest {
   return {
     id: "r1",
+    companyId: SAMPLE_COMPANY_ID,
     supplierId: "s1",
     period: "2024",
     categoryNumber: 1,
@@ -20,6 +22,7 @@ function request(overrides: Partial<SupplierDataRequest> = {}): SupplierDataRequ
     submittedAt: "2024-11-20T00:00:00.000Z",
     reportedEmissions: 100,
     dataQuality: 3,
+    verifiedAt: "2024-11-21T00:00:00.000Z",
     rejectionReasonKey: null,
     supersedesRequestId: null,
     ...overrides,

@@ -614,7 +614,28 @@
     "not_submitted": "미제출",
     "none": "없음",
     "quality_scale": "{score}/5",
-    "readonly_note": "이 화면은 현재 조회 전용입니다. 승인·반려·재요청 로직은 라이브러리 계층에 구현되어 있으나 서버 액션은 아직 연결되지 않았습니다.",
+    "in_memory_note": "데이터베이스가 연결되지 않은 환경입니다. 승인·반려·재요청 결과는 서버 프로세스 메모리에만 기록되므로 이후 요청에서는 유지되지만 서버 재시작 시 샘플 상태로 초기화되며, 여러 서버 인스턴스 간에 공유되지 않습니다.",
+    "acting_as": "{name} ({role}) 권한으로 조치합니다.",
+    "decision_column": "조치",
+    "decision_none": "추가 조치 없음",
+    "decided_at": "판정 {date}",
+    "decision_success": "{action} 처리했습니다.",
+    "decision_success_re_request": "재요청을 생성했습니다: {request}",
+    "decision_actions": {
+      "verify": "승인",
+      "reject": "반려",
+      "re_request": "재요청"
+    },
+    "errors": {
+      "unauthenticated": "로그인이 필요합니다.",
+      "forbidden_role": "이 조치를 수행할 권한이 없습니다.",
+      "wrong_company": "다른 회사의 요청에는 접근할 수 없습니다.",
+      "not_found": "데이터 요청을 찾을 수 없습니다.",
+      "not_submitted": "제출 완료 상태인 요청만 승인 또는 반려할 수 있습니다.",
+      "not_rejected": "반려된 요청만 재요청할 수 있습니다.",
+      "already_re_requested": "이미 재요청이 생성된 건입니다.",
+      "invalid_input": "입력값이 올바르지 않습니다."
+    },
     "statuses": {
       "active": "거래 중",
       "pending": "등록 대기",
@@ -637,7 +658,11 @@
     "packaging": "포장재"
   },
   "supplier_rejection_reasons": {
-    "no_methodology_disclosed": "산정 방법론을 제시하지 않아 검증 불가"
+    "no_methodology_disclosed": "산정 방법론을 제시하지 않아 검증 불가",
+    "missing_supporting_evidence": "증빙 자료가 첨부되지 않음",
+    "boundary_mismatch": "조직 경계 설정이 요청 범위와 불일치",
+    "outdated_emission_factors": "적용 배출계수가 최신 버전이 아님",
+    "inconsistent_with_prior_period": "전기 제출값과 설명되지 않는 차이 존재"
   },
   "user_roles": {
     "super_admin": "플랫폼 관리자",

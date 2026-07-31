@@ -614,7 +614,28 @@
     "not_submitted": "未提出",
     "none": "なし",
     "quality_scale": "{score}/5",
-    "readonly_note": "この画面は現時点では参照専用です。承認・差戻し・再依頼のロジックはライブラリ層に実装済みですが、サーバーアクションには未接続です。",
+    "in_memory_note": "データベースが接続されていない環境です。承認・差戻し・再依頼の結果はサーバープロセスのメモリにのみ記録されるため、以降のリクエストでは保持されますが、サーバー再起動時にサンプル状態へ初期化され、複数のサーバーインスタンス間では共有されません。",
+    "acting_as": "{name}（{role}）として処置します。",
+    "decision_column": "処置",
+    "decision_none": "追加の処置は不要",
+    "decided_at": "判定 {date}",
+    "decision_success": "{action}しました。",
+    "decision_success_re_request": "再依頼を作成しました: {request}",
+    "decision_actions": {
+      "verify": "承認",
+      "reject": "差戻し",
+      "re_request": "再依頼"
+    },
+    "errors": {
+      "unauthenticated": "ログインが必要です。",
+      "forbidden_role": "この処置を行う権限がありません。",
+      "wrong_company": "他社の依頼にはアクセスできません。",
+      "not_found": "データ依頼が見つかりません。",
+      "not_submitted": "提出完了状態の依頼のみ承認または差戻しできます。",
+      "not_rejected": "差戻された依頼のみ再依頼できます。",
+      "already_re_requested": "すでに再依頼が作成されています。",
+      "invalid_input": "入力値が正しくありません。"
+    },
     "statuses": {
       "active": "取引中",
       "pending": "登録待ち",
@@ -637,7 +658,11 @@
     "packaging": "包装材"
   },
   "supplier_rejection_reasons": {
-    "no_methodology_disclosed": "算定方法が示されておらず検証不能"
+    "no_methodology_disclosed": "算定方法が示されておらず検証不能",
+    "missing_supporting_evidence": "証憑資料が添付されていない",
+    "boundary_mismatch": "組織境界の設定が依頼範囲と不一致",
+    "outdated_emission_factors": "適用した排出係数が最新版ではない",
+    "inconsistent_with_prior_period": "前期の提出値との差異が説明されていない"
   },
   "user_roles": {
     "super_admin": "プラットフォーム管理者",

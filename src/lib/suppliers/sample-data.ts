@@ -17,9 +17,17 @@
  * implementation satisfying `SuppliersProvider`.
  */
 
-import type { Supplier, SupplierDataRequest, SuppliersOverview, SuppliersProvider } from "./types";
+import { SAMPLE_COMPANY_ID } from "@/lib/auth/actor";
+import type { Supplier, SupplierDataRequest, SuppliersOverview } from "./types";
 
 const SAMPLE_YEAR = 2024;
+
+/**
+ * The fixtures omit `companyId`; the builder stamps every row with
+ * `SAMPLE_COMPANY_ID`. One tenant, named once, rather than the same uuid copied
+ * onto eight rows where one typo would silently make a request unactionable.
+ */
+type SampleRequest = Omit<SupplierDataRequest, "companyId">;
 
 /**
  * Reference instant the sample's overdue/upcoming split is built around.
@@ -85,7 +93,7 @@ const SAMPLE_SUPPLIERS: readonly Supplier[] = [
   },
 ];
 
-const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
+const SAMPLE_REQUESTS: readonly SampleRequest[] = [
   {
     id: "REQ-001",
     supplierId: "s-0001",
@@ -96,6 +104,7 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: "2024-11-18T02:00:00.000Z",
     reportedEmissions: 8_420.5,
     dataQuality: 4,
+    verifiedAt: "2024-11-20T05:00:00.000Z",
     rejectionReasonKey: null,
     supersedesRequestId: null,
   },
@@ -109,9 +118,11 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: "2024-11-22T06:30:00.000Z",
     reportedEmissions: 11_260.0,
     dataQuality: 5,
+    verifiedAt: "2024-11-25T01:10:00.000Z",
     rejectionReasonKey: null,
     supersedesRequestId: null,
   },
+  // Awaiting our decision: the row the verify/reject controls act on.
   {
     id: "REQ-003",
     supplierId: "s-0003",
@@ -122,6 +133,7 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: "2024-12-08T01:15:00.000Z",
     reportedEmissions: 1_980.25,
     dataQuality: null,
+    verifiedAt: null,
     rejectionReasonKey: null,
     supersedesRequestId: null,
   },
@@ -137,6 +149,7 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: "2024-10-25T04:00:00.000Z",
     reportedEmissions: 6_100.0,
     dataQuality: 1,
+    verifiedAt: "2024-10-28T02:00:00.000Z",
     rejectionReasonKey: "no_methodology_disclosed",
     supersedesRequestId: null,
   },
@@ -150,6 +163,7 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: "2024-12-02T07:45:00.000Z",
     reportedEmissions: 5_740.0,
     dataQuality: 3,
+    verifiedAt: "2024-12-04T00:30:00.000Z",
     rejectionReasonKey: null,
     supersedesRequestId: "REQ-004",
   },
@@ -164,6 +178,7 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: null,
     reportedEmissions: null,
     dataQuality: null,
+    verifiedAt: null,
     rejectionReasonKey: null,
     supersedesRequestId: null,
   },
@@ -177,6 +192,40 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: null,
     reportedEmissions: null,
     dataQuality: null,
+    verifiedAt: null,
+    rejectionReasonKey: null,
+    supersedesRequestId: null,
+  },
+  // Two more submissions awaiting our decision. A verification queue of one is
+  // not a queue: with a single undecided row the portal would show an empty
+  // worklist as soon as anybody acted, and the roll-up's "submitted but not
+  // verified" column — the whole point of keeping unverified figures separate —
+  // would read zero.
+  {
+    id: "REQ-008",
+    supplierId: "s-0004",
+    period: "2024",
+    categoryNumber: 2,
+    status: "submitted",
+    dueDate: "2024-12-18",
+    submittedAt: "2024-12-09T08:40:00.000Z",
+    reportedEmissions: 733.4,
+    dataQuality: null,
+    verifiedAt: null,
+    rejectionReasonKey: null,
+    supersedesRequestId: null,
+  },
+  {
+    id: "REQ-009",
+    supplierId: "s-0003",
+    period: "2024",
+    categoryNumber: 6,
+    status: "submitted",
+    dueDate: "2024-12-22",
+    submittedAt: "2024-12-09T23:10:00.000Z",
+    reportedEmissions: 158.6,
+    dataQuality: null,
+    verifiedAt: null,
     rejectionReasonKey: null,
     supersedesRequestId: null,
   },
@@ -190,6 +239,7 @@ const SAMPLE_REQUESTS: readonly SupplierDataRequest[] = [
     submittedAt: "2024-11-27T03:20:00.000Z",
     reportedEmissions: 412.75,
     dataQuality: 4,
+    verifiedAt: "2024-11-29T04:15:00.000Z",
     rejectionReasonKey: null,
     supersedesRequestId: null,
   },
@@ -201,11 +251,6 @@ export function buildSampleSuppliersOverview(year: number = SAMPLE_YEAR): Suppli
     year,
     isSampleData: true,
     suppliers: SAMPLE_SUPPLIERS.map((supplier) => ({ ...supplier })),
-    requests: SAMPLE_REQUESTS.map((request) => ({ ...request })),
+    requests: SAMPLE_REQUESTS.map((request) => ({ ...request, companyId: SAMPLE_COMPANY_ID })),
   };
 }
-
-/** Active suppliers provider. Returns sample suppliers and requests. */
-export const getSuppliersOverview: SuppliersProvider = async ({ year } = {}) => {
-  return buildSampleSuppliersOverview(year ?? SAMPLE_YEAR);
-};

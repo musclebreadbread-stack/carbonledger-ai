@@ -614,7 +614,28 @@
     "not_submitted": "未提交",
     "none": "无",
     "quality_scale": "{score}/5",
-    "readonly_note": "本页面目前仅供查看。审核、退回与重新索取的逻辑已在库层实现，但尚未接入服务器操作。",
+    "in_memory_note": "当前环境未连接数据库。审核、退回与重新索取的结果仅记录在服务器进程内存中：后续请求可以读到，但服务器重启后会重置为样例状态，且不会在多个服务器实例之间共享。",
+    "acting_as": "以 {name}（{role}）身份处理。",
+    "decision_column": "处理",
+    "decision_none": "无需其他处理",
+    "decided_at": "判定 {date}",
+    "decision_success": "已完成{action}。",
+    "decision_success_re_request": "已生成重新索取：{request}",
+    "decision_actions": {
+      "verify": "审核通过",
+      "reject": "退回",
+      "re_request": "重新索取"
+    },
+    "errors": {
+      "unauthenticated": "需要先登录。",
+      "forbidden_role": "您没有执行此处理的权限。",
+      "wrong_company": "无法处理其他公司的索取请求。",
+      "not_found": "未找到数据索取请求。",
+      "not_submitted": "只有处于已提交状态的请求才能审核或退回。",
+      "not_rejected": "只有被退回的请求才能重新索取。",
+      "already_re_requested": "该请求已生成过重新索取。",
+      "invalid_input": "输入内容不正确。"
+    },
     "statuses": {
       "active": "合作中",
       "pending": "待登记",
@@ -637,7 +658,11 @@
     "packaging": "包装材料"
   },
   "supplier_rejection_reasons": {
-    "no_methodology_disclosed": "未说明核算方法，无法验证"
+    "no_methodology_disclosed": "未说明核算方法，无法验证",
+    "missing_supporting_evidence": "未附证明材料",
+    "boundary_mismatch": "组织边界设定与索取范围不一致",
+    "outdated_emission_factors": "所用排放因子不是最新版本",
+    "inconsistent_with_prior_period": "与上期提交值存在未解释的差异"
   },
   "user_roles": {
     "super_admin": "平台管理员",

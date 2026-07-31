@@ -11,16 +11,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getCurrentActor } from "@/lib/auth/current-actor";
 import { categoryDefinition } from "@/lib/scope3/categories";
-import { SAMPLE_AS_OF, getSuppliersOverview } from "@/lib/suppliers/sample-data";
+import { SAMPLE_AS_OF } from "@/lib/suppliers/sample-data";
+import { getSuppliersOverview } from "@/lib/suppliers/store";
+import {
+  authorizeSupplierAction,
+  SUPPLIER_ACTIONS,
+  type SupplierAction,
+} from "@/lib/suppliers/transitions";
 import {
   aggregateByCategory,
   countRequests,
   isOverdue,
   responseRatePercent,
   type DataRequestStatus,
+  type SupplierDataRequest,
   type SupplierStatus,
 } from "@/lib/suppliers/types";
+import { SupplierDecisionForm } from "./supplier-decision-form";
 
 /**
  * Supply chain supplier portal, served at `/suppliers`.
@@ -38,9 +47,17 @@ import {
  *  - a request superseded by a re-request is dropped, so a supplier who was
  *    rejected and then re-submitted is counted once, not twice.
  *
- * Scope limit worth stating plainly: this page is read-only. `reRequest` and the
- * status transitions exist in the library layer and are unit-tested, but no
- * Server Action is wired up, so nothing here can verify, reject or re-request.
+ * Verification, rejection and re-request are wired to the Server Action in
+ * `./actions.ts`. Which controls a row offers comes from running the real
+ * authorisation function (`authorizeSupplierAction`) once per candidate action, so
+ * a verified row offers nothing, a rejected row offers only a re-request, and a
+ * rejected row that has already been re-requested offers nothing either — a second
+ * live replacement would double-count the supplier. The Server Action re-checks
+ * all of it.
+ *
+ * Persistence, plainly: there is no database. Decisions go to the in-memory store
+ * in `src/lib/suppliers/store.ts` and last as long as the server process. The page
+ * says so.
  */
 
 const SUPPLIER_STATUS_VARIANT: Record<
@@ -69,10 +86,25 @@ export default async function SuppliersPage() {
   const tIndustries = await getTranslations("supplier_industries");
   const tReasons = await getTranslations("supplier_rejection_reasons");
   const tCategories = await getTranslations("scope3_categories");
+  const tRoles = await getTranslations("user_roles");
   const locale = await getLocale();
 
   const overview = await getSuppliersOverview();
   const { suppliers, requests } = overview;
+
+  const actor = await getCurrentActor();
+
+  /**
+   * Actions available on one row, from the same authorisation function the Server
+   * Action uses. All requests are passed through because refusing a second
+   * re-request needs to see the siblings.
+   */
+  const allowedActionsFor = (request: SupplierDataRequest): SupplierAction[] =>
+    actor === null
+      ? []
+      : SUPPLIER_ACTIONS.filter(
+          (action) => authorizeSupplierAction(actor, request, action, requests).ok
+        );
 
   // Overdue is relative to a moment. For sample data that moment has to be the
   // sample's own reference date, or every 2024 due date would read as overdue
@@ -251,6 +283,13 @@ export default async function SuppliersPage() {
           <CardDescription>
             {t("verified_count")}: {counts.verified} · {t("rejected_count")}: {counts.rejected}
           </CardDescription>
+          {/* Who a decision will be attributed to, and why some rows offer no
+              controls. */}
+          <CardDescription data-testid="supplier-actor">
+            {actor === null
+              ? t("errors.unauthenticated")
+              : t("acting_as", { name: actor.name, role: tRoles(actor.role) })}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -265,11 +304,19 @@ export default async function SuppliersPage() {
                 <TableHead className="text-right">{t("reported_emissions")}</TableHead>
                 <TableHead className="text-right">{t("data_quality")}</TableHead>
                 <TableHead>{t("rejection_reason")}</TableHead>
+                <TableHead>{t("decision_column")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests.map((request) => (
-                <TableRow key={request.id} data-testid="supplier-request-row">
+                <TableRow
+                  key={request.id}
+                  data-testid="supplier-request-row"
+                  // Stable hook for the E2E specs: every other cell in the row is
+                  // translated, so nothing else identifies it across locales.
+                  data-request-id={request.id}
+                  data-status={request.status}
+                >
                   <TableCell className="font-medium">{supplierName(request.supplierId)}</TableCell>
                   <TableCell className="text-xs">
                     {request.categoryNumber}. {categoryName(request.categoryNumber)}
@@ -298,6 +345,9 @@ export default async function SuppliersPage() {
                     {request.submittedAt === null
                       ? t("not_submitted")
                       : formatDate(request.submittedAt)}
+                    {request.verifiedAt !== null && (
+                      <div>{t("decided_at", { date: formatDate(request.verifiedAt) })}</div>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     {request.reportedEmissions === null
@@ -316,6 +366,12 @@ export default async function SuppliersPage() {
                         ? tReasons(request.rejectionReasonKey)
                         : request.rejectionReasonKey}
                   </TableCell>
+                  <TableCell>
+                    <SupplierDecisionForm
+                      requestId={request.id}
+                      allowedActions={allowedActionsFor(request)}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -323,7 +379,7 @@ export default async function SuppliersPage() {
         </CardContent>
       </Card>
 
-      <p className="text-xs text-muted-foreground">{t("readonly_note")}</p>
+      <p className="text-xs text-muted-foreground">{t("in_memory_note")}</p>
     </div>
   );
 }

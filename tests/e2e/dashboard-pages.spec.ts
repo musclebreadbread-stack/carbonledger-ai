@@ -7,10 +7,17 @@
  * message keys, or shows an unsubstituted `{count}` placeholder, satisfies a
  * status-code check and fails here.
  *
- * All five are Server Components with no client interactivity, so every
- * assertion works on server-rendered DOM text. As noted in `fixtures.ts`, this
- * sandbox has no CJK fonts, so screenshots are useless and text assertions are
- * the only meaningful check.
+ * Every assertion works on server-rendered DOM text. As noted in `fixtures.ts`,
+ * this sandbox has no CJK fonts, so screenshots are useless and text assertions
+ * are the only meaningful check.
+ *
+ * Scope note. `/approvals` and `/suppliers` are no longer read-only: both carry
+ * Server Actions, covered by `approvals-suppliers-actions.spec.ts`. That file
+ * mutates the in-memory store this one reads, so the assertions here are
+ * deliberately written against the parts of the sample data it does not touch —
+ * instance counts, the permanently rejected and permanently returned chains, and
+ * the rejected/re-requested supplier pair. Adding an assertion here about a
+ * mutable row would make this file order-dependent.
  */
 
 import { expect, type Page, test } from "@playwright/test";

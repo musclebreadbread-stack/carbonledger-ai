@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -21,7 +19,10 @@ services:
       - /app/.next
 
   db:
-    image: postgres:15-alpine
+    # 16 to match supabase/verification/run.sh, which is where the migrations are
+    # actually proven to apply. A local database on a different major version
+    # than the one under test is a difference nobody would think to check.
+    image: postgres:16-alpine
     ports:
       - "5432:5432"
     environment:
@@ -30,7 +31,25 @@ services:
       - POSTGRES_DB=carbonledger
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./supabase/migrations:/docker-entrypoint-initdb.d
+      # initdb runs the entries below in filename order. supabase/migrations is
+      # deliberately NOT mounted here: 0002 creates functions in an `auth`
+      # schema, which a plain Postgres image does not have, so mounting the
+      # directory directly fails on the second file. The stub goes first, then
+      # 10-apply-migrations.sh applies the migrations from /migrations.
+      #
+      # The stub is the same file the RLS harness uses, rather than a second
+      # copy that can drift from it. It is not in supabase/migrations on
+      # purpose: on a real Supabase project it would collide with the real
+      # auth.jwt().
+      #
+      # supabase/seed.sql is NOT mounted, and not because seeding is unwanted:
+      # it does not currently apply. It inserts users(full_name, status) and the
+      # schema has users(name, active), so initdb aborts with exit 3 and the
+      # container never becomes healthy. Mounting it once seed.sql matches the
+      # schema is a one-line change; fixing seed.sql is a separate defect.
+      - ./supabase/verification/auth-stub.sql:/docker-entrypoint-initdb.d/00-auth-stub.sql:ro
+      - ./docker/initdb/10-apply-migrations.sh:/docker-entrypoint-initdb.d/10-apply-migrations.sh:ro
+      - ./supabase/migrations:/migrations:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

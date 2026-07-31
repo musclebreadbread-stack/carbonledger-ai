@@ -46,10 +46,13 @@ as four different users, and check what each can actually see and change.
 
 ## Note on `docker-compose.yml`
 
-The `db` service mounts `supabase/migrations` into `/docker-entrypoint-initdb.d`,
-which runs the migrations on first boot against a plain Postgres image. That
-cannot succeed as things stand: `0002_rls_policies.sql` creates functions in the
-`auth` schema, and a plain Postgres has no `auth` schema. This harness works
-around it by applying `auth-stub.sql` first. The compose file is left alone —
-fixing it is a separate change, and putting a stubbed `auth.jwt()` into
-`supabase/migrations/` would collide with the real function on a Supabase project.
+The `db` service used to mount `supabase/migrations` straight into
+`/docker-entrypoint-initdb.d`, which could not succeed: `0002_rls_policies.sql`
+creates functions in the `auth` schema, and a plain Postgres has no `auth`
+schema, so initdb failed on the second file.
+
+It now applies `auth-stub.sql` first and then runs the migrations from
+`/migrations` via `docker/initdb/10-apply-migrations.sh` — the same order this
+harness uses. **`auth-stub.sql` is shared by both**, deliberately, so the two
+cannot drift apart. It still does not belong in `supabase/migrations/`, where it
+would collide with the real `auth.jwt()` on a Supabase project.

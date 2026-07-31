@@ -44,7 +44,10 @@
     "settings": "设置",
     "logout": "退出登录",
     "user_name": "管理员",
-    "open_menu": "打开菜单"
+    "open_menu": "打开菜单",
+    "account": "账号",
+    "sign_in": "登录",
+    "role_label": "角色"
   },
   "dashboard": {
     "title": "仪表板",
@@ -123,7 +126,14 @@
     "status": "状态",
     "all_scopes": "全部范围",
     "records": "排放记录",
-    "add_record": "+ 新建记录"
+    "add_record": "+ 新建记录",
+    "scope_filter_label": "范围筛选",
+    "filter_all": "全部",
+    "clear_filter": "清除筛选",
+    "showing_count": "显示 {count} 条",
+    "no_records": "没有符合此筛选条件的排放记录。",
+    "no_records_hint": "请清除筛选，或新增一条排放记录。",
+    "sample_data_notice": "以下排放记录为示例数据。连接数据库后将替换为真实记录。"
   },
   "emissions_new": {
     "title": "新建排放记录",
@@ -268,7 +278,30 @@
     "role_auditor": "审计员",
     "provider_korea_moe_2023": "韩国环境部 2023",
     "provider_ipcc_2006": "IPCC 2006 指南",
-    "provider_defra_2023": "英国 DEFRA 2023"
+    "provider_defra_2023": "英国 DEFRA 2023",
+    "appearance": "显示设置",
+    "appearance_desc": "选择界面语言与配色主题。所选内容保存在此浏览器的 Cookie 中，下次访问仍然有效。",
+    "language": "语言",
+    "language_desc": "默认语言为韩语。在此更改后，服务端渲染的文案以及日期、数字格式都会随之改变。",
+    "language_current": "当前语言: {language}",
+    "language_switcher_hint": "顶部栏的语言图标可更改同一设置，两者写入同一个 Cookie。",
+    "theme": "主题",
+    "theme_desc": "深色模式也可通过顶部栏的主题按钮切换。",
+    "theme_light": "浅色",
+    "theme_dark": "深色",
+    "theme_system": "跟随系统",
+    "my_account": "账号与权限",
+    "my_account_desc": "当前会话可执行的操作范围。",
+    "signed_in_as": "登录账号",
+    "not_signed_in": "尚未登录。",
+    "role_label": "角色",
+    "permissions_label": "拥有权限",
+    "company_label": "公司 ID",
+    "sign_in_cta": "登录",
+    "sign_out": "退出登录",
+    "demo_session_note": "这是演示会话。未登录也可浏览页面，但操作权限仅限于场所管理员级别。",
+    "saved": "已保存。",
+    "not_persisted": "该字段尚未持久化，连接 Supabase 后生效。"
   },
   "auth": {
     "login": "登录",
@@ -295,7 +328,38 @@
     "work_email": "工作邮箱",
     "confirm_password": "确认密码",
     "creating_account": "正在创建账户...",
-    "create_account": "创建账户"
+    "create_account": "创建账户",
+    "demo_mode_title": "演示模式（未连接数据库）",
+    "demo_mode_body": "尚未配置 Supabase。使用下面的测试账号登录，即可查看不同角色的界面与权限。会话仅由签名 Cookie 维持，并非真实认证。",
+    "supabase_mode_title": "已连接 Supabase",
+    "supabase_mode_body": "将使用真实的 Supabase 账号登录。若要使用测试账号，请先执行 supabase/seed-auth-users.sql。",
+    "test_accounts_title": "测试账号",
+    "test_accounts_desc": "这些账号用于查看角色如何改变界面与可执行的操作。",
+    "test_accounts_password": "统一密码",
+    "test_accounts_use": "以此账号登录",
+    "test_accounts_fill": "填入表单",
+    "invalid_credentials": "电子邮件或密码不正确。",
+    "email_required": "请输入电子邮件。",
+    "password_required": "请输入密码。",
+    "sign_in_failed": "登录失败，请稍后重试。",
+    "account_inactive": "该账号已停用。",
+    "forgot_password_title": "重置密码",
+    "forgot_password_subtitle": "我们会向注册邮箱发送重置链接",
+    "forgot_password_demo": "演示模式不发送邮件。测试账号的密码已显示在登录页面上。",
+    "forgot_password_submit": "发送重置链接",
+    "forgot_password_sent": "如果该地址已注册，重置说明已发送。",
+    "back_to_login": "返回登录",
+    "placeholder_first_name": "吉童",
+    "placeholder_last_name": "洪",
+    "placeholder_company": "韩国制造股份有限公司",
+    "placeholder_email": "hong@example.co.kr",
+    "register_demo_notice": "演示模式不会真正创建账号。请使用测试账号登录。",
+    "register_failed": "无法创建账号。",
+    "register_success": "账号已创建。请确认邮件后登录。",
+    "password_mismatch": "两次输入的密码不一致。",
+    "password_too_short": "密码至少需要 8 个字符。",
+    "signed_out": "已退出登录。",
+    "sso_unavailable": "SSO 尚未接入。请使用电子邮件和密码登录。"
   },
   "errors": {
     "required": "此项为必填",
@@ -798,5 +862,58 @@
       "scope3_not_assessed": "Scope 3类别{category}的相关性尚未评估。",
       "scope3_uncalculated": "Scope 3类别{category}已判定为相关，但尚未核算。"
     }
+  },
+  "actor": {
+    "unauthenticated_operator": "未认证操作员（无会话）"
+  },
+  "a11y": {
+    "skip_to_content": "跳到主要内容"
+  },
+  "error_pages": {
+    "not_found_title": "未找到页面",
+    "not_found_body": "请求的地址已移动或不存在。请检查网址，或使用下面的链接。",
+    "error_title": "发生错误",
+    "error_body": "渲染此页面时出现问题。请重试或返回仪表板。",
+    "retry": "重试",
+    "go_dashboard": "前往仪表板",
+    "go_home": "返回首页",
+    "digest": "错误标识: {digest}",
+    "loading": "加载中..."
+  },
+  "permissions": {
+    "read": "查看",
+    "write": "创建·编辑",
+    "approve": "审批",
+    "admin": "管理",
+    "audit": "审计",
+    "delete": "删除",
+    "export": "导出"
+  },
+  "notifications": {
+    "title": "通知",
+    "description": "集中显示需要处理的事项。",
+    "empty": "没有需要处理的通知。",
+    "empty_hint": "待审批、供应商逾期、异常排放量与目标滞后都会显示在这里。",
+    "count_label": "未读 {count} 条",
+    "severity_high": "高",
+    "severity_medium": "中",
+    "severity_low": "低",
+    "view": "打开",
+    "approval_awaiting": "{record} 正在 {stage} 阶段等待处理。",
+    "supplier_overdue": "{supplier} 已超过回复期限（{date}）。",
+    "supplier_awaiting_verification": "{supplier} 的提交内容等待审核。",
+    "anomaly_high": "在 {source} 的排放量中检测到高严重度异常。",
+    "target_behind": "目标 {target} 落后于线性路径。"
+  },
+  "command_palette": {
+    "open": "打开命令面板",
+    "title": "快速跳转",
+    "description": "输入页面名称或命令。",
+    "placeholder": "搜索...",
+    "empty": "没有匹配项。",
+    "group_pages": "页面",
+    "group_language": "语言",
+    "group_theme": "主题",
+    "hint": "随时按 Ctrl+K 或 Cmd+K 打开。"
   }
 }

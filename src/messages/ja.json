@@ -44,7 +44,10 @@
     "settings": "設定",
     "logout": "ログアウト",
     "user_name": "管理者",
-    "open_menu": "メニューを開く"
+    "open_menu": "メニューを開く",
+    "account": "アカウント",
+    "sign_in": "ログイン",
+    "role_label": "ロール"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -123,7 +126,14 @@
     "status": "ステータス",
     "all_scopes": "すべてのスコープ",
     "records": "排出記録",
-    "add_record": "+ 新規記録"
+    "add_record": "+ 新規記録",
+    "scope_filter_label": "スコープ絞り込み",
+    "filter_all": "すべて",
+    "clear_filter": "絞り込み解除",
+    "showing_count": "{count} 件表示",
+    "no_records": "この条件に一致する排出記録はありません。",
+    "no_records_hint": "絞り込みを解除するか、新しい排出記録を追加してください。",
+    "sample_data_notice": "以下の排出記録はサンプルデータです。データベース接続後に実データへ置き換わります。"
   },
   "emissions_new": {
     "title": "新規排出記録",
@@ -268,7 +278,30 @@
     "role_auditor": "監査人",
     "provider_korea_moe_2023": "韓国環境部 2023",
     "provider_ipcc_2006": "IPCC 2006 ガイドライン",
-    "provider_defra_2023": "英国 DEFRA 2023"
+    "provider_defra_2023": "英国 DEFRA 2023",
+    "appearance": "表示設定",
+    "appearance_desc": "画面の言語とテーマを選択します。選択内容はこのブラウザーのクッキーに保存され、次回以降も維持されます。",
+    "language": "言語",
+    "language_desc": "既定の言語は韓国語です。ここで変更すると、サーバー描画の文言と日付・数値の書式も切り替わります。",
+    "language_current": "現在の言語: {language}",
+    "language_switcher_hint": "上部バーの言語アイコンでも同じ設定を変更できます。どちらも同じクッキーを使用します。",
+    "theme": "テーマ",
+    "theme_desc": "ダークモードは上部バーのテーマボタンからも切り替えられます。",
+    "theme_light": "ライト",
+    "theme_dark": "ダーク",
+    "theme_system": "システム設定",
+    "my_account": "アカウントと権限",
+    "my_account_desc": "現在のセッションで実行できる操作の範囲です。",
+    "signed_in_as": "ログイン中のアカウント",
+    "not_signed_in": "ログインしていません。",
+    "role_label": "ロール",
+    "permissions_label": "保有権限",
+    "company_label": "会社 ID",
+    "sign_in_cta": "ログイン",
+    "sign_out": "ログアウト",
+    "demo_session_note": "デモセッションです。ログインなしでも画面は閲覧できますが、操作権限はサイト管理者相当に限定されます。",
+    "saved": "保存しました。",
+    "not_persisted": "この項目はまだデータベースに保存されません。Supabase 接続後に有効になります。"
   },
   "auth": {
     "login": "ログイン",
@@ -295,7 +328,38 @@
     "work_email": "会社のメールアドレス",
     "confirm_password": "パスワード（確認）",
     "creating_account": "アカウント作成中...",
-    "create_account": "アカウント作成"
+    "create_account": "アカウント作成",
+    "demo_mode_title": "デモモード（データベース未接続）",
+    "demo_mode_body": "Supabase が設定されていません。以下のテストアカウントでログインすると、ロールごとの画面と権限を確認できます。セッションは署名付きクッキーのみで、実際の認証ではありません。",
+    "supabase_mode_title": "Supabase 接続済み",
+    "supabase_mode_body": "実際の Supabase アカウントでログインします。テストアカウントを使う場合は supabase/seed-auth-users.sql を先に適用してください。",
+    "test_accounts_title": "テストアカウント",
+    "test_accounts_desc": "ロールによって画面と実行可能な操作がどう変わるかを確認できるアカウントです。",
+    "test_accounts_password": "共通パスワード",
+    "test_accounts_use": "このアカウントでログイン",
+    "test_accounts_fill": "フォームに入力",
+    "invalid_credentials": "メールアドレスまたはパスワードが正しくありません。",
+    "email_required": "メールアドレスを入力してください。",
+    "password_required": "パスワードを入力してください。",
+    "sign_in_failed": "ログインに失敗しました。しばらくしてから再度お試しください。",
+    "account_inactive": "無効化されたアカウントです。",
+    "forgot_password_title": "パスワードの再設定",
+    "forgot_password_subtitle": "登録メールアドレスに再設定リンクを送信します",
+    "forgot_password_demo": "デモモードではメールを送信しません。テストアカウントのパスワードはログイン画面に表示されています。",
+    "forgot_password_submit": "再設定リンクを送信",
+    "forgot_password_sent": "登録済みのアドレスであれば再設定の案内を送信しました。",
+    "back_to_login": "ログインに戻る",
+    "placeholder_first_name": "太郎",
+    "placeholder_last_name": "山田",
+    "placeholder_company": "韓国製造株式会社",
+    "placeholder_email": "yamada@example.co.jp",
+    "register_demo_notice": "デモモードではアカウントは実際には作成されません。テストアカウントでログインしてください。",
+    "register_failed": "アカウントを作成できませんでした。",
+    "register_success": "アカウントを作成しました。メールを確認してログインしてください。",
+    "password_mismatch": "パスワードが一致しません。",
+    "password_too_short": "パスワードは8文字以上にしてください。",
+    "signed_out": "ログアウトしました。",
+    "sso_unavailable": "SSO は未接続です。メールアドレスとパスワードでログインしてください。"
   },
   "errors": {
     "required": "必須入力項目です",
@@ -798,5 +862,58 @@
       "scope3_not_assessed": "Scope 3カテゴリ{category}の関連性がまだ評価されていません。",
       "scope3_uncalculated": "Scope 3カテゴリ{category}は関連ありと判断されましたが、まだ算定されていません。"
     }
+  },
+  "actor": {
+    "unauthenticated_operator": "未認証オペレーター（セッションなし）"
+  },
+  "a11y": {
+    "skip_to_content": "本文へスキップ"
+  },
+  "error_pages": {
+    "not_found_title": "ページが見つかりません",
+    "not_found_body": "指定されたアドレスは移動または存在しません。URLをご確認のうえ、以下のリンクをご利用ください。",
+    "error_title": "エラーが発生しました",
+    "error_body": "ページの表示中に問題が発生しました。再試行するか、ダッシュボードへ戻ってください。",
+    "retry": "再試行",
+    "go_dashboard": "ダッシュボードへ",
+    "go_home": "ホームへ",
+    "digest": "エラー識別子: {digest}",
+    "loading": "読み込み中..."
+  },
+  "permissions": {
+    "read": "参照",
+    "write": "作成・編集",
+    "approve": "承認",
+    "admin": "管理",
+    "audit": "監査",
+    "delete": "削除",
+    "export": "エクスポート"
+  },
+  "notifications": {
+    "title": "通知",
+    "description": "対応が必要な項目をまとめています。",
+    "empty": "確認が必要な通知はありません。",
+    "empty_hint": "承認待ち、サプライヤーの期限超過、異常排出量、目標未達が発生するとここに表示されます。",
+    "count_label": "未確認 {count} 件",
+    "severity_high": "高",
+    "severity_medium": "中",
+    "severity_low": "低",
+    "view": "開く",
+    "approval_awaiting": "{record} が {stage} 段階で待機しています。",
+    "supplier_overdue": "{supplier} の回答期限（{date}）を過ぎています。",
+    "supplier_awaiting_verification": "{supplier} の提出内容が承認待ちです。",
+    "anomaly_high": "{source} の排出量に重大度の高い異常が検出されました。",
+    "target_behind": "目標 {target} が線形経路を下回っています。"
+  },
+  "command_palette": {
+    "open": "コマンドパレットを開く",
+    "title": "クイック移動",
+    "description": "ページ名またはコマンドを入力してください。",
+    "placeholder": "検索...",
+    "empty": "一致する項目はありません。",
+    "group_pages": "ページ",
+    "group_language": "言語",
+    "group_theme": "テーマ",
+    "hint": "Ctrl+K または Cmd+K でいつでも開けます。"
   }
 }

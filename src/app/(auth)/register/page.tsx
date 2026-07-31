@@ -34,20 +34,20 @@ export default function RegisterPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">{t("first_name")}</Label>
-              <Input id="firstName" placeholder="John" required />
+              <Input id="firstName" name="firstName" placeholder={t("placeholder_first_name")} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">{t("last_name")}</Label>
-              <Input id="lastName" placeholder="Doe" required />
+              <Input id="lastName" name="lastName" placeholder={t("placeholder_last_name")} required />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="companyName">{t("company_name")}</Label>
-            <Input id="companyName" placeholder="Acme Corp" required />
+            <Input id="companyName" name="companyName" placeholder={t("placeholder_company")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">{t("work_email")}</Label>
-            <Input id="email" type="email" placeholder="john@acme.com" required />
+            <Input id="email" name="email" type="email" placeholder={t("placeholder_email")} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">{t("password")}</Label>

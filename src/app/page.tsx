@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/features/locale-switcher";
+import { ThemeToggle } from "@/components/features/theme-toggle";
 
 export default async function HomePage() {
   const t = await getTranslations("home");
@@ -15,10 +16,11 @@ export default async function HomePage() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-carbon-50 to-ocean-50 dark:from-carbon-950 dark:to-ocean-950">
-      <div className="absolute right-4 top-4">
+      <div className="absolute right-4 top-4 flex items-center gap-1">
+        <ThemeToggle />
         <LocaleSwitcher />
       </div>
-      <main className="mx-auto max-w-4xl px-4 text-center">
+      <main id="main-content" className="mx-auto max-w-4xl px-4 text-center">
         <h1 className="mb-4 text-5xl font-bold tracking-tight text-foreground">{tApp("name")}</h1>
         <p className="mb-8 text-xl text-muted-foreground">{t("tagline")}</p>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

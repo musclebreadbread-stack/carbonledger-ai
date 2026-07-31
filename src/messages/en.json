@@ -44,7 +44,10 @@
     "settings": "Settings",
     "logout": "Log out",
     "user_name": "Admin User",
-    "open_menu": "Open menu"
+    "open_menu": "Open menu",
+    "account": "Account",
+    "sign_in": "Sign in",
+    "role_label": "Role"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -123,7 +126,14 @@
     "status": "Status",
     "all_scopes": "All Scopes",
     "records": "Emission Records",
-    "add_record": "+ New Record"
+    "add_record": "+ New Record",
+    "scope_filter_label": "Scope filter",
+    "filter_all": "All",
+    "clear_filter": "Clear filter",
+    "showing_count": "{count} shown",
+    "no_records": "No emission records match this filter.",
+    "no_records_hint": "Clear the filter, or add a new emission record.",
+    "sample_data_notice": "The records below are sample data. They are replaced by real records once the database is connected."
   },
   "emissions_new": {
     "title": "New Emission Record",
@@ -268,7 +278,30 @@
     "role_auditor": "Auditor",
     "provider_korea_moe_2023": "Korea MOE 2023",
     "provider_ipcc_2006": "IPCC 2006 Guidelines",
-    "provider_defra_2023": "UK DEFRA 2023"
+    "provider_defra_2023": "UK DEFRA 2023",
+    "appearance": "Display",
+    "appearance_desc": "Choose the interface language and colour theme. The choice is stored in a cookie in this browser and survives the next visit.",
+    "language": "Language",
+    "language_desc": "Korean is the default. Changing it here also changes server-rendered copy and date/number formatting.",
+    "language_current": "Current language: {language}",
+    "language_switcher_hint": "The globe icon in the top bar changes the same setting — both write the same cookie.",
+    "theme": "Theme",
+    "theme_desc": "Dark mode can also be toggled from the theme button in the top bar.",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "my_account": "Account and permissions",
+    "my_account_desc": "What the current session is allowed to do.",
+    "signed_in_as": "Signed in as",
+    "not_signed_in": "You are not signed in.",
+    "role_label": "Role",
+    "permissions_label": "Permissions",
+    "company_label": "Company ID",
+    "sign_in_cta": "Sign in",
+    "sign_out": "Sign out",
+    "demo_session_note": "This is a demo session. Pages are readable without signing in, but actions are limited to what a site admin may do.",
+    "saved": "Saved.",
+    "not_persisted": "This field is not persisted yet. It becomes active once Supabase is connected."
   },
   "auth": {
     "login": "Log in",
@@ -295,7 +328,38 @@
     "work_email": "Work Email",
     "confirm_password": "Confirm Password",
     "creating_account": "Creating account...",
-    "create_account": "Create Account"
+    "create_account": "Create Account",
+    "demo_mode_title": "Demo mode (no database connected)",
+    "demo_mode_body": "Supabase is not configured. Sign in with one of the test accounts below to see how screens and permissions differ by role. The session is a signed cookie only — it is not real authentication.",
+    "supabase_mode_title": "Supabase connected",
+    "supabase_mode_body": "Sign-in goes to your Supabase project. To use the test accounts, apply supabase/seed-auth-users.sql first.",
+    "test_accounts_title": "Test accounts",
+    "test_accounts_desc": "Each account shows how the screens and the available actions change with the role.",
+    "test_accounts_password": "Shared password",
+    "test_accounts_use": "Sign in as this account",
+    "test_accounts_fill": "Fill the form",
+    "invalid_credentials": "That email and password combination is not valid.",
+    "email_required": "Enter an email address.",
+    "password_required": "Enter a password.",
+    "sign_in_failed": "Sign-in failed. Please try again shortly.",
+    "account_inactive": "This account is deactivated.",
+    "forgot_password_title": "Reset your password",
+    "forgot_password_subtitle": "We will email you a reset link",
+    "forgot_password_demo": "Demo mode does not send email. The test-account password is printed on the sign-in screen.",
+    "forgot_password_submit": "Send reset link",
+    "forgot_password_sent": "If that address is registered, a reset link is on its way.",
+    "back_to_login": "Back to sign-in",
+    "placeholder_first_name": "Gildong",
+    "placeholder_last_name": "Hong",
+    "placeholder_company": "Hankook Manufacturing Co., Ltd.",
+    "placeholder_email": "hong@example.co.kr",
+    "register_demo_notice": "Demo mode does not create real accounts. Use a test account to sign in.",
+    "register_failed": "The account could not be created.",
+    "register_success": "Account created. Confirm your email, then sign in.",
+    "password_mismatch": "The two passwords do not match.",
+    "password_too_short": "Use at least 8 characters.",
+    "signed_out": "You have been signed out.",
+    "sso_unavailable": "SSO is not wired up yet. Sign in with email and password."
   },
   "errors": {
     "required": "This field is required",
@@ -798,5 +862,58 @@
       "scope3_not_assessed": "Scope 3 category {category} has not been assessed for relevance yet.",
       "scope3_uncalculated": "Scope 3 category {category} was judged relevant but has not been calculated yet."
     }
+  },
+  "actor": {
+    "unauthenticated_operator": "Unauthenticated operator (no session)"
+  },
+  "a11y": {
+    "skip_to_content": "Skip to main content"
+  },
+  "error_pages": {
+    "not_found_title": "Page not found",
+    "not_found_body": "The address you requested has moved or never existed. Check the URL, or use one of the links below.",
+    "error_title": "Something went wrong",
+    "error_body": "This page could not be rendered. Try again, or go back to the dashboard.",
+    "retry": "Try again",
+    "go_dashboard": "Go to dashboard",
+    "go_home": "Go to home",
+    "digest": "Error reference: {digest}",
+    "loading": "Loading..."
+  },
+  "permissions": {
+    "read": "Read",
+    "write": "Create / edit",
+    "approve": "Approve",
+    "admin": "Administer",
+    "audit": "Audit",
+    "delete": "Delete",
+    "export": "Export"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Everything currently waiting on someone.",
+    "empty": "Nothing needs your attention.",
+    "empty_hint": "Pending approvals, overdue supplier requests, high-severity anomalies and off-track targets appear here.",
+    "count_label": "{count} unread",
+    "severity_high": "High",
+    "severity_medium": "Medium",
+    "severity_low": "Low",
+    "view": "Open",
+    "approval_awaiting": "{record} is waiting at the {stage} stage.",
+    "supplier_overdue": "{supplier} missed its response deadline ({date}).",
+    "supplier_awaiting_verification": "A submission from {supplier} is waiting for verification.",
+    "anomaly_high": "A high-severity anomaly was detected on {source}.",
+    "target_behind": "Target {target} is behind its linear pathway."
+  },
+  "command_palette": {
+    "open": "Open the command palette",
+    "title": "Jump to",
+    "description": "Type a page name or a command.",
+    "placeholder": "Search...",
+    "empty": "No matches.",
+    "group_pages": "Pages",
+    "group_language": "Language",
+    "group_theme": "Theme",
+    "hint": "Press Ctrl+K or Cmd+K at any time."
   }
 }

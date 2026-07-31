@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getCurrentActor } from "@/lib/auth/current-actor";
+import { actorDisplayName, getCurrentActor } from "@/lib/auth/current-actor";
 import { getApprovalsOverview } from "@/lib/approvals/store";
 import {
   formatSignatureShort,
@@ -119,6 +119,7 @@ export default async function ApprovalsPage() {
   const locale = await getLocale();
 
   const tRoles = await getTranslations("user_roles");
+  const tActor = await getTranslations("actor");
 
   const overview = await getApprovalsOverview();
   const { instances } = overview;
@@ -242,7 +243,10 @@ export default async function ApprovalsPage() {
           <CardDescription data-testid="approval-actor">
             {actor === null
               ? t("errors.unauthenticated")
-              : t("acting_as", { name: actor.name, role: tRoles(actor.role) })}
+              : t("acting_as", {
+                  name: actorDisplayName(actor, tActor("unauthenticated_operator")),
+                  role: tRoles(actor.role),
+                })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

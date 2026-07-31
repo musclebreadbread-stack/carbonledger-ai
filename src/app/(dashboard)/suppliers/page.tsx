@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getCurrentActor } from "@/lib/auth/current-actor";
+import { actorDisplayName, getCurrentActor } from "@/lib/auth/current-actor";
 import { categoryDefinition } from "@/lib/scope3/categories";
 import { SAMPLE_AS_OF } from "@/lib/suppliers/sample-data";
 import { getSuppliersOverview } from "@/lib/suppliers/store";
@@ -87,6 +87,7 @@ export default async function SuppliersPage() {
   const tReasons = await getTranslations("supplier_rejection_reasons");
   const tCategories = await getTranslations("scope3_categories");
   const tRoles = await getTranslations("user_roles");
+  const tActor = await getTranslations("actor");
   const locale = await getLocale();
 
   const overview = await getSuppliersOverview();
@@ -288,7 +289,10 @@ export default async function SuppliersPage() {
           <CardDescription data-testid="supplier-actor">
             {actor === null
               ? t("errors.unauthenticated")
-              : t("acting_as", { name: actor.name, role: tRoles(actor.role) })}
+              : t("acting_as", {
+                  name: actorDisplayName(actor, tActor("unauthenticated_operator")),
+                  role: tRoles(actor.role),
+                })}
           </CardDescription>
         </CardHeader>
         <CardContent>

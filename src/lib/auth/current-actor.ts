@@ -38,7 +38,18 @@ import { isRole, SAMPLE_COMPANY_ID, type Actor } from "./actor";
  */
 export const FALLBACK_ACTOR: Actor = {
   id: "00000000-0000-4000-8000-0000000000ff",
-  name: "Unauthenticated operator (no session)",
+  /*
+   * A stable machine identifier, not display copy.
+   *
+   * This used to read "Unauthenticated operator (no session)" and was rendered
+   * verbatim by the approvals and suppliers screens, so a Korean-default UI
+   * showed one English sentence in the place that names who is about to sign. It
+   * is also the string that lands in a signature payload, where a locale-
+   * dependent value would make the same signature hash differently depending on
+   * the reader's language. Both problems go away by keeping this invariant and
+   * translating at the point of render — see `actorDisplayName`.
+   */
+  name: "unauthenticated-operator",
   role: Role.SITE_ADMIN,
   companyId: SAMPLE_COMPANY_ID,
 };
@@ -46,6 +57,17 @@ export const FALLBACK_ACTOR: Actor = {
 /** True when the actor is the stub above rather than a real session. */
 export function isFallbackActor(actor: Actor): boolean {
   return actor.id === FALLBACK_ACTOR.id;
+}
+
+/**
+ * Display name for an actor, translating the fallback stub's placeholder.
+ *
+ * Takes the resolved string rather than a translator so it works from both Server
+ * and Client Components, and so the two screens that show "who is signing" cannot
+ * drift apart on this.
+ */
+export function actorDisplayName(actor: Actor, fallbackLabel: string): string {
+  return isFallbackActor(actor) ? fallbackLabel : actor.name;
 }
 
 /**

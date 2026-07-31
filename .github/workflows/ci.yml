@@ -9,6 +9,7 @@ on:
 env:
   NODE_VERSION: '22'
   PNPM_VERSION: '11'
+  DENO_VERSION: '2.9.4'
 
 jobs:
   lint:
@@ -139,6 +140,19 @@ jobs:
           path: test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+  deno:
+    name: Deno Functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v${{ env.DENO_VERSION }}
+      - run: deno task verify
 
   build:
     name: Build

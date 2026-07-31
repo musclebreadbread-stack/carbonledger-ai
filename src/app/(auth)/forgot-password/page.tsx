@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { isSupabaseConfigured } from "@/lib/auth";
+import { getAuthDeploymentMode } from "@/lib/auth/deployment-mode";
 import { ForgotPasswordForm } from "./forgot-password-form";
 
 /**
@@ -18,7 +18,7 @@ import { ForgotPasswordForm } from "./forgot-password-form";
  */
 export default async function ForgotPasswordPage() {
   const t = await getTranslations("auth");
-  const demoMode = !isSupabaseConfigured();
+  const authMode = getAuthDeploymentMode();
 
   return (
     <Card>
@@ -27,12 +27,12 @@ export default async function ForgotPasswordPage() {
         <CardDescription>{t("forgot_password_subtitle")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {demoMode ? (
+        {authMode !== "supabase" ? (
           <p
             data-testid="forgot-password-demo-notice"
             className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground"
           >
-            {t("forgot_password_demo")}
+            {t(authMode === "demo" ? "forgot_password_demo" : "auth_not_configured")}
           </p>
         ) : (
           <ForgotPasswordForm />

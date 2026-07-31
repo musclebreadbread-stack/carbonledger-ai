@@ -6,6 +6,7 @@
 import { createBrowserClient as createSupabaseBrowserClient } from "@supabase/ssr";
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getAuthDeploymentMode } from "./deployment-mode";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -20,7 +21,7 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
  * `./current-actor`, and the matching early return in `src/proxy.ts`.
  */
 export function isSupabaseConfigured(): boolean {
-  return SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0;
+  return getAuthDeploymentMode() === "supabase";
 }
 
 /**

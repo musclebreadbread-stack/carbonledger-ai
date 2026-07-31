@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { DASHBOARD_ROUTE } from "@/lib/navigation";
+import { resolveAuthDeploymentMode } from "@/lib/auth/deployment-mode";
 
 /**
  * Next.js Proxy (formerly Middleware; renamed in Next.js 16)
@@ -72,10 +73,11 @@ export async function proxy(request: NextRequest) {
     },
   });
 
+  const authMode = resolveAuthDeploymentMode(process.env);
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (authMode === "demo") {
     /*
      * No Supabase project, so there is no session to check and nothing to
      * enforce. Every request is let through, including the dashboard: the demo
@@ -89,6 +91,14 @@ export async function proxy(request: NextRequest) {
      * neither of which belongs in the proxy.
      */
     return response;
+  }
+
+  if (authMode === "disabled") {
+    if (isAuthRoute) return response;
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {

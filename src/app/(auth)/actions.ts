@@ -24,7 +24,8 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
-import { isSupabaseConfigured, signIn, signOut, signUp } from "@/lib/auth";
+import { signIn, signOut, signUp } from "@/lib/auth";
+import { getAuthDeploymentMode } from "@/lib/auth/deployment-mode";
 import { endDemoSession, startDemoSession } from "@/lib/auth/demo-session";
 import { verifyTestCredentials } from "@/lib/auth/test-accounts";
 import { DASHBOARD_ROUTE } from "@/lib/navigation";
@@ -73,17 +74,20 @@ export async function signInAction(
   const { email, password } = parsed.data;
   const destination = safeRedirect(formData.get("redirect"));
 
-  if (isSupabaseConfigured()) {
+  const deploymentMode = getAuthDeploymentMode();
+  if (deploymentMode === "supabase") {
     const { error } = await signIn(email, password);
     if (error) {
       return { error: t("invalid_credentials"), notice: null };
     }
-  } else {
+  } else if (deploymentMode === "demo") {
     const account = verifyTestCredentials(email, password);
     if (account === null) {
       return { error: t("invalid_credentials"), notice: null };
     }
     await startDemoSession(account.id);
+  } else {
+    return { error: t("auth_not_configured"), notice: null };
   }
 
   // `redirect()` throws, so it has to be outside any try/catch above it.
@@ -91,7 +95,7 @@ export async function signInAction(
 }
 
 export async function signOutAction(): Promise<void> {
-  if (isSupabaseConfigured()) {
+  if (getAuthDeploymentMode() === "supabase") {
     await signOut();
   } else {
     await endDemoSession();
@@ -141,14 +145,18 @@ export async function registerAction(
     return { error: t("register_failed"), notice: null };
   }
 
-  if (!isSupabaseConfigured()) {
+  const deploymentMode = getAuthDeploymentMode();
+  if (deploymentMode !== "supabase") {
     /*
      * Deliberately refuses rather than pretending. Creating a company needs a
      * database; the previous implementation navigated away on submit, which read
      * as success and left the visitor looking for an account that was never
      * created.
      */
-    return { error: t("register_demo_notice"), notice: null };
+    return {
+      error: t(deploymentMode === "demo" ? "register_demo_notice" : "auth_not_configured"),
+      notice: null,
+    };
   }
 
   const { firstName, lastName, companyName, email, password } = parsed.data;

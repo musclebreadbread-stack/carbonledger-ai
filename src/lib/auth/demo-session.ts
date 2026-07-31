@@ -27,7 +27,7 @@
 // `next/headers` import below already makes this module unusable from a Client
 // Component — Next.js fails the build rather than shipping it to the browser.
 import { cookies } from "next/headers";
-import { isSupabaseConfigured } from "./index";
+import { getAuthDeploymentMode } from "./deployment-mode";
 import {
   createDemoSessionToken,
   DEMO_SESSION_COOKIE,
@@ -41,6 +41,9 @@ export { DEMO_SESSION_COOKIE } from "./demo-token";
 
 /** Writes the session cookie. Called only from the sign-in Server Action. */
 export async function startDemoSession(accountId: string): Promise<void> {
+  if (getAuthDeploymentMode() !== "demo") {
+    throw new Error("Demo sessions are disabled in this deployment");
+  }
   const store = await cookies();
   store.set(DEMO_SESSION_COOKIE, await createDemoSessionToken(accountId), {
     httpOnly: true,
@@ -66,7 +69,7 @@ export async function endDemoSession(): Promise<void> {
  * being a parallel way in on a real deployment.
  */
 export async function getDemoSessionAccount(): Promise<TestAccount | null> {
-  if (isSupabaseConfigured()) return null;
+  if (getAuthDeploymentMode() !== "demo") return null;
 
   const store = await cookies();
   return readDemoSessionToken(store.get(DEMO_SESSION_COOKIE)?.value);

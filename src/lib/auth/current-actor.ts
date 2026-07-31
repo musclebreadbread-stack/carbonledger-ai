@@ -12,7 +12,8 @@
  * in 0003 with `created_by = auth.current_user_id()`.
  */
 
-import { getUser, isSupabaseConfigured } from "./index";
+import { getUser } from "./index";
+import { getAuthDeploymentMode } from "./deployment-mode";
 import { actorFromTestAccount, getDemoSessionAccount } from "./demo-session";
 import { Role } from "./roles";
 import { isRole, SAMPLE_COMPANY_ID, type Actor } from "./actor";
@@ -81,7 +82,8 @@ export function actorDisplayName(actor: Actor, fallbackLabel: string): string {
  * someone else's company.
  */
 export async function getCurrentActor(): Promise<Actor | null> {
-  if (!isSupabaseConfigured()) {
+  const deploymentMode = getAuthDeploymentMode();
+  if (deploymentMode === "demo") {
     /*
      * A demo session, if one has been started from /login, takes precedence over
      * the stub. That is the whole point of the test accounts: signing in as the
@@ -97,6 +99,8 @@ export async function getCurrentActor(): Promise<Actor | null> {
     const account = await getDemoSessionAccount();
     return account === null ? FALLBACK_ACTOR : actorFromTestAccount(account);
   }
+
+  if (deploymentMode === "disabled") return null;
 
   const user = await getUser();
   if (!user) return null;

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionSummary } from "@/lib/auth/session";
-import { isSupabaseConfigured } from "@/lib/auth";
+import { getAuthDeploymentMode } from "@/lib/auth/deployment-mode";
 import { DASHBOARD_ROUTE } from "@/lib/navigation";
 import { TEST_ACCOUNTS, TEST_ACCOUNT_PASSWORD } from "@/lib/auth/test-accounts";
 import { LoginForm } from "./login-form";
@@ -28,20 +28,21 @@ export default async function LoginPage({
 
   const requested = (await searchParams).redirect;
   const redirectTo = Array.isArray(requested) ? requested[0] : requested;
+  const authMode = getAuthDeploymentMode();
 
   return (
     <LoginForm
-      demoMode={!isSupabaseConfigured()}
+      authMode={authMode}
       redirectTo={typeof redirectTo === "string" ? redirectTo : null}
       // Passed as data rather than imported by the client component so the shared
       // password is not compiled into the browser bundle of a deployment that has
       // Supabase configured and therefore no test accounts.
       testAccounts={
-        isSupabaseConfigured()
+        authMode !== "demo"
           ? []
           : TEST_ACCOUNTS.map(({ email, name, roleKey }) => ({ email, name, roleKey }))
       }
-      testPassword={isSupabaseConfigured() ? null : TEST_ACCOUNT_PASSWORD}
+      testPassword={authMode === "demo" ? TEST_ACCOUNT_PASSWORD : null}
     />
   );
 }

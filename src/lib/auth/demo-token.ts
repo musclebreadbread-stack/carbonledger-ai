@@ -15,7 +15,10 @@ import { findTestAccountById, type TestAccount } from "./test-accounts";
 
 export const DEMO_SESSION_COOKIE = "cl_demo_session";
 
-/** Seven days, matching the "remember me" horizon the login form offers. */
+/**
+ * Seven days. The login form no longer offers a "remember me" choice, because the
+ * demo session always lasted this long regardless of the checkbox.
+ */
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 /**

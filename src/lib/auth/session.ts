@@ -19,7 +19,8 @@
  *                  between a session expiring and the next navigation.
  */
 
-import { getUser, isSupabaseConfigured } from "./index";
+import { getUser } from "./index";
+import { getAuthDeploymentMode } from "./deployment-mode";
 import { actorFromTestAccount, getDemoSessionAccount } from "./demo-session";
 import { FALLBACK_ACTOR, isFallbackActor } from "./current-actor";
 import { isRole, type Actor } from "./actor";
@@ -38,7 +39,8 @@ export interface SessionSummary {
 }
 
 export async function getSessionSummary(): Promise<SessionSummary> {
-  if (!isSupabaseConfigured()) {
+  const deploymentMode = getAuthDeploymentMode();
+  if (deploymentMode === "demo") {
     const account = await getDemoSessionAccount();
     if (account !== null) {
       return {
@@ -49,6 +51,10 @@ export async function getSessionSummary(): Promise<SessionSummary> {
       };
     }
     return { mode: "anonymous", actor: FALLBACK_ACTOR, email: null, isSignedIn: false };
+  }
+
+  if (deploymentMode === "disabled") {
+    return { mode: "none", actor: null, email: null, isSignedIn: false };
   }
 
   const user = await getUser();

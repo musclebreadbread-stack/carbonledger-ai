@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInAction } from "../actions";
 import { EMPTY_AUTH_STATE } from "../form-state";
+import type { AuthDeploymentMode } from "@/lib/auth/deployment-mode";
 
 export interface TestAccountSummary {
   email: string;
@@ -26,8 +27,8 @@ export interface TestAccountSummary {
 }
 
 interface LoginFormProps {
-  /** True when no Supabase project is configured, i.e. the test-account path. */
-  demoMode: boolean;
+  /** Exactly one live authentication path, resolved on the server. */
+  authMode: AuthDeploymentMode;
   /** `?redirect=` from the proxy, passed through to the action. */
   redirectTo: string | null;
   testAccounts: TestAccountSummary[];
@@ -47,7 +48,7 @@ interface LoginFormProps {
  * `?redirect=` travels as a hidden field: the action re-validates it as a
  * same-origin path, since a query parameter is attacker-controlled.
  */
-export function LoginForm({ demoMode, redirectTo, testAccounts, testPassword }: LoginFormProps) {
+export function LoginForm({ authMode, redirectTo, testAccounts, testPassword }: LoginFormProps) {
   const t = useTranslations("auth");
   const tApp = useTranslations("app");
   const tRoles = useTranslations("user_roles");
@@ -56,6 +57,18 @@ export function LoginForm({ demoMode, redirectTo, testAccounts, testPassword }: 
   const formRef = React.useRef<HTMLFormElement>(null);
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const modeTitle =
+    authMode === "demo"
+      ? t("demo_mode_title")
+      : authMode === "supabase"
+        ? t("supabase_mode_title")
+        : t("auth_not_configured_title");
+  const modeBody =
+    authMode === "demo"
+      ? t("demo_mode_body")
+      : authMode === "supabase"
+        ? t("supabase_mode_body")
+        : t("auth_not_configured_body");
 
   /**
    * Fills the credentials for one test account without submitting.
@@ -96,10 +109,8 @@ export function LoginForm({ demoMode, redirectTo, testAccounts, testPassword }: 
               className="rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground"
               data-testid="login-mode-notice"
             >
-              <p className="font-medium text-foreground">
-                {demoMode ? t("demo_mode_title") : t("supabase_mode_title")}
-              </p>
-              <p>{demoMode ? t("demo_mode_body") : t("supabase_mode_body")}</p>
+              <p className="font-medium text-foreground">{modeTitle}</p>
+              <p>{modeBody}</p>
             </div>
 
             {state.error && (
@@ -137,18 +148,14 @@ export function LoginForm({ demoMode, redirectTo, testAccounts, testPassword }: 
                 required
               />
             </div>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm" htmlFor="remember">
-                <input id="remember" name="remember" type="checkbox" className="rounded border" />
-                {t("remember_me")}
-              </label>
+            <div className="flex justify-end">
               <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                 {t("forgot_password")}
               </Link>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isPending} data-testid="login-submit">
+            <Button type="submit" className="w-full" disabled={isPending || authMode === "disabled"} data-testid="login-submit">
               {isPending ? t("signing_in") : t("sign_in")}
             </Button>
             <div className="relative w-full">

@@ -45,6 +45,12 @@ export default defineConfig({
     command: "pnpm build && pnpm start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
+    // Production builds fail closed by design. E2E intentionally exercises the
+    // published demo accounts, so opt in explicitly with a test-only cookie key.
+    env: {
+      ENABLE_DEMO_MODE: "true",
+      DEMO_SESSION_SECRET: "playwright-only-demo-session-secret-32-bytes",
+    },
     // A cold production build is well past Playwright's 60s default.
     timeout: 240_000,
   },

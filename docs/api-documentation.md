@@ -6,13 +6,17 @@
 https://your-domain.com/api/v1
 ```
 
-## Authentication
+## Authentication and current API status
 
-All API endpoints require authentication via Bearer token:
+The browser application uses the Supabase session cookie refreshed by `src/proxy.ts`.
+A standalone `Authorization: Bearer` contract for external clients is **not implemented** yet,
+so do not expose `/api/v1` as a public partner API or treat Proxy as the final authorization
+boundary. Demo mode is a product preview, not authentication.
 
-```
-Authorization: Bearer <supabase-access-token>
-```
+Read endpoints currently return deterministic sample/reference data and mark it with either
+`is_sample_data: true` or `data_source: "not_connected"`. Calculation and report generation
+are functional but do not persist data. The emissions and organizations mutation endpoints
+validate input and then return `501 not_implemented`; they never return a fake success.
 
 ## Endpoints
 
@@ -40,7 +44,7 @@ List emission records with filters and pagination.
 
 #### POST /api/v1/emissions
 
-Create a new emission record.
+Validates an emission-record payload, but persistence is not connected yet.
 
 **Request Body:**
 ```json
@@ -56,13 +60,11 @@ Create a new emission record.
 }
 ```
 
-**Response (201):**
+**Response (501):**
 ```json
 {
-  "id": "uuid",
-  "scope": "scope1",
-  "status": "draft",
-  "created_at": "2024-01-15T10:00:00Z"
+  "error": "Emission persistence is not implemented",
+  "code": "not_implemented"
 }
 ```
 
@@ -156,7 +158,8 @@ List organizations accessible to the authenticated user.
 
 #### POST /api/v1/organizations
 
-Create a new organization.
+Validates an organization payload, then returns `501 not_implemented` until tenant creation,
+first-admin assignment and audit logging can run in one database transaction.
 
 ## Error Responses
 
@@ -178,6 +181,7 @@ All errors follow this format:
 - `403` - Forbidden (insufficient permissions)
 - `404` - Not Found
 - `429` - Too Many Requests
+- `501` - Valid request, but the required persistence/integration is not implemented
 - `500` - Internal Server Error
 
 ## Rate Limits

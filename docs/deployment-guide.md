@@ -67,6 +67,14 @@ Full instructions, including the scheduling SQL, the token scheme and the
 4. Set redirect URLs:
    - `https://your-domain.com/auth/callback`
    - `http://localhost:3000/auth/callback` (development)
+5. Create real users through Supabase Auth. If you temporarily apply
+   `supabase/seed-auth-users.sql`, remove/disable those public test users or rotate
+   their passwords before exposure to the internet.
+
+Production fails closed when Supabase is absent or only one public Supabase variable is
+set. Keep `ENABLE_DEMO_MODE` unset or `false` for real deployments. An explicit production
+demo (`ENABLE_DEMO_MODE=true`) is only for isolated product previews and also requires a
+strong, random `DEMO_SESSION_SECRET`; it is not real authentication.
 
 ## 2. Vercel Deployment
 
@@ -88,6 +96,10 @@ Add these environment variables in Vercel Dashboard > Settings > Environment Var
 | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview | Service role key |
 | `DATABASE_URL` | Production | PostgreSQL connection string |
 | `OPENAI_API_KEY` | Production | OpenAI API key (if using AI) |
+| `ENABLE_DEMO_MODE` | Production | Leave unset or `false` for real deployments |
+
+`SUPABASE_SERVICE_ROLE_KEY` and `DATABASE_URL` are server-only. Never prefix secrets with
+`NEXT_PUBLIC_`. Edge Function secrets belong in Supabase, not in Vercel.
 
 ### Domain Setup
 
@@ -100,20 +112,19 @@ Add these environment variables in Vercel Dashboard > Settings > Environment Var
 
 ## 3. CI/CD Pipeline
 
-The GitHub Actions workflow (`.github/workflows/ci.yml`) automatically runs:
-- Linting (ESLint)
-- Type checking (TypeScript)
-- Unit tests (Vitest)
-- Build verification
-
-On push to `main`, the deployment workflow deploys to Vercel.
+The checked-in workflows currently run linting, type checking, unit tests and a production
+build. On push to `main`, `deploy.yml` deploys to Vercel. Its `Run Supabase Migrations`
+step is **echo-only** and does not change the database; run `npx supabase db push` through
+a reviewed manual process until the separate pipeline PR #2 is merged and verified. Do
+not assume a Vercel deployment has applied schema changes.
 
 ## 4. Monitoring Setup
 
 ### Vercel Analytics
 
-1. Enable Web Vitals in Vercel Dashboard
-2. Add `@vercel/analytics` package (already included)
+Vercel Web Analytics is not currently installed in this repository. If the team approves
+it after reviewing privacy and retention requirements, install and wire
+`@vercel/analytics`; merely enabling the dashboard does not add the application code.
 
 ### Error Tracking
 
@@ -160,7 +171,8 @@ If a deployment causes issues:
 1. Go to Vercel Dashboard > Deployments
 2. Find the last working deployment
 3. Click "..." > "Promote to Production"
-4. Rollback database if needed: `npx supabase db reset`
+4. For database rollback, use a tested backup/PITR restore or an approved reverse migration.
+   Never run `npx supabase db reset` against production.
 
 ## Troubleshooting
 

@@ -11,7 +11,7 @@ ISO 14064 / GHG Protocol compliant. Multi-tenant SaaS architecture.
 +------------------------------------------------------------------+
 |                                                                    |
 |  +------------------+  +------------------+  +-----------------+  |
-|  |   Next.js 15     |  |  Calculation     |  |   MRV Engine    |  |
+|  |   Next.js 16     |  |  Calculation     |  |   MRV Engine    |  |
 |  |   App Router     |  |  Engine          |  |   (Measure,     |  |
 |  |   (React 19)     |  |  (ISO 14064)     |  |   Report,       |  |
 |  |                  |  |                  |  |   Verify)       |  |
@@ -31,7 +31,7 @@ ISO 14064 / GHG Protocol compliant. Multi-tenant SaaS architecture.
 
 | Category | Technology |
 |----------|-----------|
-| Framework | Next.js 15 (App Router, React 19) |
+| Framework | Next.js 16 (App Router, React 19) |
 | Language | TypeScript (strict mode) |
 | Database | PostgreSQL via Supabase |
 | ORM | Drizzle ORM |
@@ -138,17 +138,22 @@ pnpm dev
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Yes (server) |
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Production/Supabase mode |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key; must be set with the URL | Production/Supabase mode |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase key | DB/administrative operations |
+| `DATABASE_URL` | PostgreSQL connection string | Migrations and DB operations |
+| `ENABLE_DEMO_MODE` | Explicit production demo opt-in; never enable for real production data | No (local demo is automatic) |
+| `DEMO_SESSION_SECRET` | Signed demo-cookie key | Required for any non-local demo |
 | `OPENAI_API_KEY` | OpenAI API key (AI features) | Optional |
-| `SUPPLIER_PORTAL_TOKEN_SECRET` | HMAC key for supplier submission tokens | Yes (Edge Functions) |
-| `EDGE_CRON_SECRET` | Shared secret for the scheduled functions | Yes (Edge Functions) |
+| `SUPPLIER_PORTAL_TOKEN_SECRET` | HMAC key for supplier submission tokens | Edge Functions |
+| `EDGE_CRON_SECRET` | Shared secret for the scheduled functions | Edge Functions |
 | `SUPPLIER_NOTIFICATION_WEBHOOK_URL` | Where supplier reminder digests are POSTed | Optional |
 
-The last three are Edge Function secrets, set with `supabase secrets set` rather
-than in Vercel — see [Edge Functions](./edge-functions.md).
+Local development enters demo mode only when both Supabase public variables are absent
+(and `ENABLE_DEMO_MODE` is not `false`). Production fails closed unless Supabase is fully
+configured or demo mode is explicitly opted into. A partial Supabase configuration never
+falls back to demo. The Edge Function secrets are set with `supabase secrets set`, not in
+Vercel — see [Edge Functions](./edge-functions.md).
 
 ### Development Commands
 

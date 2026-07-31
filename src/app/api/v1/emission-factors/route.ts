@@ -59,5 +59,6 @@ export async function GET(request: NextRequest) {
   return Response.json({
     items: factors,
     total: factors.length,
+    is_sample_data: true,
   });
 }

@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     page,
     limit,
     filters: { scope, status },
+    data_source: "not_connected",
   };
 
   return Response.json(data);
@@ -36,23 +37,17 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validated = EmissionRecordSchema.parse(body);
+    EmissionRecordSchema.parse(body);
 
-    // In production:
-    // 1. Get user from session
-    // 2. Run calculation engine
-    // 3. Create record in database
-    // 4. Create audit trail entry
-    // 5. Return result
-
+    // Creating a record requires a database transaction, tenant/RLS checks and
+    // an audit entry. Returning a made-up UUID here used to look like a successful
+    // save even though a following GET could never find it.
     return Response.json(
       {
-        id: crypto.randomUUID(),
-        ...validated,
-        status: "draft",
-        created_at: new Date().toISOString(),
+        error: "Emission persistence is not implemented",
+        code: "not_implemented",
       },
-      { status: 201 }
+      { status: 501 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {

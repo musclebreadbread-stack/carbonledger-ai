@@ -16,7 +16,7 @@ export async function GET() {
   // In production, query companies table filtered by user's access
   const organizations = [
     {
-      id: crypto.randomUUID(),
+      id: "11111111-1111-1111-1111-111111111111",
       name: "Sample Manufacturing Co.",
       industry: "manufacturing",
       country: "South Korea",
@@ -27,27 +27,27 @@ export async function GET() {
     },
   ];
 
-  return Response.json({ items: organizations, total: organizations.length });
+  return Response.json({
+    items: organizations,
+    total: organizations.length,
+    is_sample_data: true,
+  });
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validated = CreateOrganizationSchema.parse(body);
+    CreateOrganizationSchema.parse(body);
 
-    // In production:
-    // 1. Create company in database
-    // 2. Assign creating user as company_admin
-    // 3. Create audit entry
-    // 4. Return created organization
-
+    // Organization creation must atomically create a tenant, assign its first
+    // administrator and append an audit event. Never report success until that
+    // transaction exists.
     return Response.json(
       {
-        id: crypto.randomUUID(),
-        ...validated,
-        created_at: new Date().toISOString(),
+        error: "Organization persistence is not implemented",
+        code: "not_implemented",
       },
-      { status: 201 }
+      { status: 501 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {

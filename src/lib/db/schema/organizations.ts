@@ -7,6 +7,7 @@ import {
   integer,
   decimal,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -64,29 +65,46 @@ export const facilities = pgTable("facilities", {
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
-export const productionLines = pgTable("production_lines", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  facilityId: uuid("facility_id")
-    .notNull()
-    .references(() => facilities.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+// The foreign-key indexes below are not optimisations: the RLS policies in
+// 0003 reach company_id through these keys with an EXISTS on the parent, which
+// without an index on the child's key degrades every filtered read into a
+// sequential scan. They live in the schema so `db:generate` does not propose
+// dropping the indexes 0003/0004 already created.
+export const productionLines = pgTable(
+  "production_lines",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    facilityId: uuid("facility_id")
+      .notNull()
+      .references(() => facilities.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    facilityIdx: index("idx_production_lines_facility_id").on(table.facilityId),
+  })
+);
 
-export const equipment = pgTable("equipment", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  lineId: uuid("line_id")
-    .notNull()
-    .references(() => productionLines.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  type: varchar("type", { length: 100 }).notNull(),
-  capacity: decimal("capacity", { precision: 12, scale: 4 }),
-  refrigerantType: varchar("refrigerant_type", { length: 50 }),
-  refrigerantChargeKg: decimal("refrigerant_charge_kg", { precision: 10, scale: 3 }),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const equipment = pgTable(
+  "equipment",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    lineId: uuid("line_id")
+      .notNull()
+      .references(() => productionLines.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    type: varchar("type", { length: 100 }).notNull(),
+    capacity: decimal("capacity", { precision: 12, scale: 4 }),
+    refrigerantType: varchar("refrigerant_type", { length: 50 }),
+    refrigerantChargeKg: decimal("refrigerant_charge_kg", { precision: 10, scale: 3 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    lineIdx: index("idx_equipment_line_id").on(table.lineId),
+  })
+);
 
 export const companiesRelations = relations(companies, ({ many }) => ({
   sites: many(sites),

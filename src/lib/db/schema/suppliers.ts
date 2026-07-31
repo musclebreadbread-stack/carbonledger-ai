@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, jsonb, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, jsonb, pgEnum, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { companies } from "./organizations";
 
@@ -28,23 +28,36 @@ export const suppliers = pgTable("suppliers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const supplierDataRequests = pgTable("supplier_data_requests", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  supplierId: uuid("supplier_id")
-    .notNull()
-    .references(() => suppliers.id, { onDelete: "cascade" }),
-  companyId: uuid("company_id")
-    .notNull()
-    .references(() => companies.id, { onDelete: "cascade" }),
-  period: varchar("period", { length: 50 }).notNull(),
-  category: varchar("category", { length: 100 }),
-  status: dataRequestStatusEnum("status").default("pending").notNull(),
-  dueDate: timestamp("due_date", { withTimezone: true }),
-  submittedAt: timestamp("submitted_at", { withTimezone: true }),
-  data: jsonb("data"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const supplierDataRequests = pgTable(
+  "supplier_data_requests",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    supplierId: uuid("supplier_id")
+      .notNull()
+      .references(() => suppliers.id, { onDelete: "cascade" }),
+    companyId: uuid("company_id")
+      .notNull()
+      .references(() => companies.id, { onDelete: "cascade" }),
+    period: varchar("period", { length: 50 }).notNull(),
+    category: varchar("category", { length: 100 }),
+    status: dataRequestStatusEnum("status").default("pending").notNull(),
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    data: jsonb("data"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdx: index("idx_supplier_data_requests_company_id").on(table.companyId),
+    supplierIdx: index("idx_supplier_data_requests_supplier_id").on(table.supplierId),
+    // The reminder job reads open requests ordered by company; without this it
+    // is a sequential scan of the whole table on every run.
+    statusDueDateIdx: index("idx_supplier_data_requests_status_due_date").on(
+      table.status,
+      table.dueDate
+    ),
+  })
+);
 
 export const suppliersRelations = relations(suppliers, ({ one, many }) => ({
   company: one(companies, { fields: [suppliers.companyId], references: [companies.id] }),

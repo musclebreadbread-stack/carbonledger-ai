@@ -62,17 +62,23 @@ export const emissionRecords = pgTable(
   })
 );
 
-export const emissionRecordAttachments = pgTable("emission_record_attachments", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  recordId: uuid("record_id")
-    .notNull()
-    .references(() => emissionRecords.id, { onDelete: "cascade" }),
-  fileName: varchar("file_name", { length: 255 }).notNull(),
-  fileUrl: text("file_url").notNull(),
-  fileType: varchar("file_type", { length: 50 }),
-  uploadedBy: uuid("uploaded_by").references(() => users.id),
-  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const emissionRecordAttachments = pgTable(
+  "emission_record_attachments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    recordId: uuid("record_id")
+      .notNull()
+      .references(() => emissionRecords.id, { onDelete: "cascade" }),
+    fileName: varchar("file_name", { length: 255 }).notNull(),
+    fileUrl: text("file_url").notNull(),
+    fileType: varchar("file_type", { length: 50 }),
+    uploadedBy: uuid("uploaded_by").references(() => users.id),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    recordIdx: index("idx_emission_record_attachments_record_id").on(table.recordId),
+  })
+);
 
 export const emissionRecordsRelations = relations(emissionRecords, ({ one, many }) => ({
   source: one(emissionSources, {

@@ -11,6 +11,19 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 /**
+ * Whether a Supabase project is configured at all.
+ *
+ * Both clients above are constructed from these two variables, and
+ * `createServerClient` with an empty URL fails at the point of use rather than
+ * returning "no session". Callers that need to distinguish "nobody is signed in"
+ * from "there is no authentication system here" have to ask first — see
+ * `./current-actor`, and the matching early return in `src/proxy.ts`.
+ */
+export function isSupabaseConfigured(): boolean {
+  return SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0;
+}
+
+/**
  * Create Supabase client for browser (Client Components)
  */
 export function createBrowserClient(): SupabaseClient {

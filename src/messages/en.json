@@ -34,7 +34,9 @@
     "approvals": "Approvals",
     "sites": "Site Map",
     "ai_insights": "AI Insights",
-    "version": "CarbonLedger AI v0.1.0"
+    "version": "CarbonLedger AI v0.1.0",
+    "primary_navigation": "Primary navigation",
+    "toggle_sidebar": "Collapse or expand the navigation"
   },
   "header": {
     "search": "Search...",

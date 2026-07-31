@@ -34,7 +34,9 @@
     "approvals": "결재/승인",
     "sites": "사업장 지도",
     "ai_insights": "AI 분석",
-    "version": "CarbonLedger AI v0.1.0"
+    "version": "CarbonLedger AI v0.1.0",
+    "primary_navigation": "주 메뉴",
+    "toggle_sidebar": "메뉴 접기/펼치기"
   },
   "header": {
     "search": "검색...",

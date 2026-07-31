@@ -13,6 +13,7 @@
  */
 
 import { getUser, isSupabaseConfigured } from "./index";
+import { actorFromTestAccount, getDemoSessionAccount } from "./demo-session";
 import { Role } from "./roles";
 import { isRole, SAMPLE_COMPANY_ID, type Actor } from "./actor";
 
@@ -81,7 +82,20 @@ export function actorDisplayName(actor: Actor, fallbackLabel: string): string {
  */
 export async function getCurrentActor(): Promise<Actor | null> {
   if (!isSupabaseConfigured()) {
-    return FALLBACK_ACTOR;
+    /*
+     * A demo session, if one has been started from /login, takes precedence over
+     * the stub. That is the whole point of the test accounts: signing in as the
+     * viewer has to actually cost you `can_write` and `can_approve`, or the
+     * role-gated controls are decoration.
+     *
+     * With no session the stub still applies rather than returning null. An
+     * unauthenticated deployment stays browsable — `src/proxy.ts` lets every
+     * request through when Supabase is absent, so returning null here would
+     * render the workflow screens permanently inert instead of merely
+     * unattributed.
+     */
+    const account = await getDemoSessionAccount();
+    return account === null ? FALLBACK_ACTOR : actorFromTestAccount(account);
   }
 
   const user = await getUser();

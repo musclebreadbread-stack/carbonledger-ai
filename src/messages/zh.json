@@ -34,7 +34,9 @@
     "approvals": "审批",
     "sites": "厂区地图",
     "ai_insights": "AI 分析",
-    "version": "CarbonLedger AI v0.1.0"
+    "version": "CarbonLedger AI v0.1.0",
+    "primary_navigation": "主导航",
+    "toggle_sidebar": "折叠或展开导航"
   },
   "header": {
     "search": "搜索...",

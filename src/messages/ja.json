@@ -34,7 +34,9 @@
     "approvals": "承認",
     "sites": "拠点マップ",
     "ai_insights": "AI分析",
-    "version": "CarbonLedger AI v0.1.0"
+    "version": "CarbonLedger AI v0.1.0",
+    "primary_navigation": "メインメニュー",
+    "toggle_sidebar": "メニューの折りたたみ/展開"
   },
   "header": {
     "search": "検索...",

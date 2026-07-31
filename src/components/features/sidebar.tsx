@@ -6,94 +6,57 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { NavRoute } from "@/lib/navigation";
 
-interface NavItem {
-  /** Key under the `nav` message namespace. */
-  titleKey: string;
-  href: string;
-  icon: React.ReactNode;
-  children?: { titleKey: string; href: string }[];
-}
-
-const navItems: NavItem[] = [
-  {
-    titleKey: "dashboard",
-    href: "/dashboard",
-    icon: <LayoutDashboardIcon />,
-  },
-  {
-    titleKey: "emissions",
-    href: "/emissions",
-    icon: <CloudIcon />,
-    children: [
-      { titleKey: "scope1", href: "/emissions?scope=1" },
-      { titleKey: "scope2", href: "/emissions?scope=2" },
-      { titleKey: "scope3", href: "/emissions?scope=3" },
-    ],
-  },
-  {
-    titleKey: "scope3_categories",
-    href: "/scope3",
-    icon: <LayersIcon />,
-  },
-  {
-    titleKey: "emission_factors",
-    href: "/emission-factors",
-    icon: <DatabaseIcon />,
-  },
-  {
-    titleKey: "approvals",
-    href: "/approvals",
-    icon: <CheckCircleIcon />,
-  },
-  {
-    titleKey: "reports",
-    href: "/reports",
-    icon: <FileTextIcon />,
-  },
-  {
-    titleKey: "suppliers",
-    href: "/suppliers",
-    icon: <TruckIcon />,
-  },
-  {
-    titleKey: "targets",
-    href: "/targets",
-    icon: <TargetIcon />,
-  },
-  {
-    titleKey: "sites",
-    href: "/sites",
-    icon: <MapPinIcon />,
-  },
-  {
-    titleKey: "ai_insights",
-    href: "/ai-insights",
-    icon: <SparklesIcon />,
-  },
-  {
-    titleKey: "settings",
-    href: "/settings",
-    icon: <SettingsIcon />,
-  },
-  {
-    titleKey: "audit_log",
-    href: "/audit-log",
-    icon: <ShieldIcon />,
-  },
-];
+/**
+ * Icon per nav key.
+ *
+ * The routes themselves moved to `@/lib/navigation` so the command palette, the
+ * role filter and the E2E route list can all read one list. Icons stayed behind:
+ * they are JSX, and putting them in that module would make it unimportable from
+ * anywhere that only wants paths.
+ *
+ * A key with no icon falls back to a dot rather than rendering nothing, so a route
+ * added to the nav without an icon is visible rather than invisible.
+ */
+const NAV_ICONS: Record<string, React.ReactNode> = {
+  dashboard: <LayoutDashboardIcon />,
+  emissions: <CloudIcon />,
+  scope3_categories: <LayersIcon />,
+  emission_factors: <DatabaseIcon />,
+  approvals: <CheckCircleIcon />,
+  reports: <FileTextIcon />,
+  suppliers: <TruckIcon />,
+  targets: <TargetIcon />,
+  sites: <MapPinIcon />,
+  ai_insights: <SparklesIcon />,
+  settings: <SettingsIcon />,
+  audit_log: <ShieldIcon />,
+};
 
 interface SidebarProps {
+  /** Destinations the current role may see, filtered on the server. */
+  routes: readonly NavRoute[];
   collapsed?: boolean;
   onToggle?: () => void;
+  /**
+   * Called when any nav link is followed.
+   *
+   * The mobile drawer needs to close on navigation, and doing it here — in the
+   * click that causes the navigation — rather than in an effect watching the
+   * pathname avoids a render cascade and keeps the cause and the effect in one
+   * place.
+   */
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
+export function Sidebar({ routes, collapsed = false, onToggle, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("nav");
 
   return (
     <aside
+      aria-label={t("primary_navigation")}
       className={cn(
         "flex flex-col border-r bg-card transition-all duration-300",
         collapsed ? "w-16" : "w-64"
@@ -102,23 +65,35 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       {/* Logo / Brand */}
       <div className="flex h-16 items-center justify-between border-b px-4">
         {!collapsed && (
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/dashboard" onClick={onNavigate} className="flex items-center gap-2">
             <span className="text-lg font-bold text-primary">CarbonLedger</span>
           </Link>
         )}
-        <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggle}
+          aria-label={t("toggle_sidebar")}
+          aria-expanded={!collapsed}
+          className="h-8 w-8"
+        >
           <MenuIcon />
         </Button>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-2">
-        {navItems.map((item) => {
+        {routes.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <div key={item.href}>
               <Link
                 href={item.href}
+                onClick={onNavigate}
+                // Announced to assistive technology; the colour change alone is
+                // not available to a screen reader.
+                aria-current={isActive ? "page" : undefined}
+                title={collapsed ? t(item.titleKey) : undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive
@@ -126,8 +101,12 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
-                <span className="shrink-0">{item.icon}</span>
-                {!collapsed && <span>{t(item.titleKey)}</span>}
+                <span className="shrink-0">{NAV_ICONS[item.titleKey] ?? <DotIcon />}</span>
+                {collapsed ? (
+                  <span className="sr-only">{t(item.titleKey)}</span>
+                ) : (
+                  <span>{t(item.titleKey)}</span>
+                )}
               </Link>
               {!collapsed && item.children && isActive && (
                 <div className="ml-8 mt-1 space-y-1">
@@ -135,6 +114,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                     <Link
                       key={child.href}
                       href={child.href}
+                      onClick={onNavigate}
                       className="block rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
                     >
                       {t(child.titleKey)}
@@ -269,6 +249,14 @@ function SparklesIcon() {
   return (
     <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    </svg>
+  );
+}
+
+function DotIcon() {
+  return (
+    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }

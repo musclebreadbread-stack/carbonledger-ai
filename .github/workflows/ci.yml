@@ -8,7 +8,8 @@ on:
 
 env:
   NODE_VERSION: '22'
-  PNPM_VERSION: '10'
+  PNPM_VERSION: '11'
+  DENO_VERSION: '2.9.4'
 
 jobs:
   lint:
@@ -61,6 +62,97 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
+
+  # 123 Playwright specs existed and none of them ran on a pull request.
+  #
+  # Not gated on `build`, deliberately. `playwright.config.ts` runs its own
+  # `pnpm build && pnpm start` through `webServer`, so depending on the build job
+  # would serialise two builds back to back for no benefit. Both jobs hang off the
+  # same three fast checks instead and run alongside each other.
+  #
+  # GitHub Actions sets CI=true, which is what activates `forbidOnly`,
+  # `workers: 1` and `reuseExistingServer: false` in the config. The suite has been
+  # run with CI=1 locally, so this job's behaviour is the behaviour that was tested
+  # rather than a variant of it.
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    # A hung dev server would otherwise sit at the 6 hour job default. The suite
+    # takes a couple of minutes; a build plus browsers plus tests fits well inside
+    # this.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+
+      # `webServer` compiles a production build before the first test. Persisting
+      # .next/cache keeps that off the critical path and away from the config's
+      # 240s webServer timeout on a slow runner. A miss just means a cold build.
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package.json', 'pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('package.json', 'pnpm-lock.yaml') }}-
+
+      # Runners have no browsers and none of the shared libraries a headless
+      # Chromium needs, which `--with-deps` installs. Chromium only: the config
+      # declares exactly one project, so fetching Firefox and WebKit would be two
+      # unused downloads per run.
+      - name: Install Chromium and its system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Playwright suite
+        run: pnpm test:e2e
+        env:
+          # Needed because `webServer` runs `pnpm build`, which reads these at
+          # module scope. Same placeholders as the build job — the suite runs
+          # entirely on sample data and never reaches Supabase.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
+
+      # `if: always()` so the report survives a failing run, which is the only run
+      # anybody wants to read it after.
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      # Traces are written on the first retry, so this only has contents when
+      # something failed. Kept separate from the report because it is much larger.
+      - name: Upload failure traces
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  deno:
+    name: Deno Functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v${{ env.DENO_VERSION }}
+      - run: deno task verify
 
   build:
     name: Build

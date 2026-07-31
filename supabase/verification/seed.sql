@@ -97,5 +97,14 @@ INSERT INTO user_site_access (id, user_id, site_id, can_write) VALUES
 INSERT INTO emission_factor_sets (id, name, provider, version, valid_from) VALUES
   ('c3000000-1111-4000-8000-000000000001', 'Korea MOE 2023', 'korea_moe', '2023', '2023-01-01');
 
+-- One published factor, owned by no tenant. Needed as a target for the 0005
+-- checks: a refused INSERT proves nothing about UPDATE and DELETE, which fail
+-- silently as "zero rows affected" rather than raising.
+INSERT INTO emission_factors
+  (id, set_id, category, fuel_type, unit_numerator, unit_denominator, co2_factor)
+VALUES
+  ('c5000000-1111-4000-8000-000000000001', 'c3000000-1111-4000-8000-000000000001',
+   'stationary_combustion', 'diesel', 'kgCO2e', 'L', 2.606);
+
 INSERT INTO unit_conversions (id, from_unit, to_unit, conversion_factor, category) VALUES
   ('c4000000-1111-4000-8000-000000000001', 'kg', 't', 0.001, 'mass');

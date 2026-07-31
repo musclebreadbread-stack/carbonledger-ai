@@ -23,9 +23,9 @@ as four different users, and check what each can actually see and change.
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auth-stub.sql`  | Supabase's `auth` schema, stubbed to the surface the migrations use: `auth.jwt()` reading claims out of a GUC, exactly as Supabase defines it. Not applied to a real Supabase project, which has the real thing. |
 | `roles.sql`      | Creates `app_user`, a non-owner role. RLS is _not_ applied to superusers or to a table's owner, so running the assertions as `postgres` would pass no matter how broken the policies were.                       |
-| `seed.sql`       | Two tenants with a row in every table `0003` governs, plus a completed and signed approval step, which is the row that has to be frozen.                                                                         |
+| `seed.sql`       | Two tenants with a row in every table `0003` governs, plus a completed and signed approval step, which is the row that has to be frozen. Not `supabase/seed.sql`, which is single-tenant sample data for local dev. |
 | `assertions.sql` | The checks. Each raises on failure, so psql's exit status is the verdict.                                                                                                                                        |
-| `run.sh`         | Starts the container, applies `auth-stub` → `0001` → `0002` → `0003` → `roles` → `seed`, prints the policy count per table, runs the assertions, removes the container.                                          |
+| `run.sh`         | Starts the container, applies `auth-stub` → `0001` → `0002` → `0003` → `0004` → `0005` → `roles` → `seed`, prints the policy count per table, runs the assertions, removes the container.                        |
 
 ## What is asserted
 
@@ -41,15 +41,29 @@ as four different users, and check what each can actually see and change.
   one of their users access to another tenant's site;
 - reference data (`scope3_categories`, `unit_conversions`,
   `emission_factor_sets`) is readable by all and writable only by `super_admin`;
+- the global `emission_factors` library stays readable by every tenant but is
+  writable only by `super_admin`: a `company_admin` is refused on `INSERT` and
+  affects zero rows on `UPDATE` and `DELETE`, and the seeded factor value is
+  still intact afterwards. This is what `0005` exists to guarantee — with `0005`
+  left out the `INSERT` check fails, which is the point of asserting it;
 - a session with no JWT sees nothing;
 - no table in `public` is left without RLS enabled or without a policy.
 
 ## Note on `docker-compose.yml`
 
-The `db` service mounts `supabase/migrations` into `/docker-entrypoint-initdb.d`,
-which runs the migrations on first boot against a plain Postgres image. That
-cannot succeed as things stand: `0002_rls_policies.sql` creates functions in the
-`auth` schema, and a plain Postgres has no `auth` schema. This harness works
-around it by applying `auth-stub.sql` first. The compose file is left alone —
-fixing it is a separate change, and putting a stubbed `auth.jwt()` into
-`supabase/migrations/` would collide with the real function on a Supabase project.
+The `db` service used to mount `supabase/migrations` straight into
+`/docker-entrypoint-initdb.d`, which could not succeed: `0002_rls_policies.sql`
+creates functions in the `auth` schema, and a plain Postgres has no `auth`
+schema, so initdb failed on the second file.
+
+It now applies `auth-stub.sql` first and then runs the migrations from
+`/migrations` via `docker/initdb/10-apply-migrations.sh` — the same order this
+harness uses. **`auth-stub.sql` is shared by both**, deliberately, so the two
+cannot drift apart. It still does not belong in `supabase/migrations/`, where it
+would collide with the real `auth.jwt()` on a Supabase project.
+
+After the migrations, Compose applies the local-development sample data from
+`supabase/seed.sql` as `/docker-entrypoint-initdb.d/20-seed.sql`. The numeric
+prefix makes the order explicit, and Postgres initdb's error handling means a
+schema/seed mismatch prevents the database from being marked ready instead of
+leaving a partially seeded database.

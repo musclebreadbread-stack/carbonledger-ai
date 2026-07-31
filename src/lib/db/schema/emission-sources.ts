@@ -1,4 +1,13 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  boolean,
+  timestamp,
+  pgEnum,
+  index,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { equipment } from "./organizations";
 
@@ -11,20 +20,26 @@ export const measurementMethodEnum = pgEnum("measurement_method", [
   "mass_balance",
 ]);
 
-export const emissionSources = pgTable("emission_sources", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  equipmentId: uuid("equipment_id").references(() => equipment.id, { onDelete: "set null" }),
-  companyId: uuid("company_id").notNull(),
-  scope: scopeEnum("scope").notNull(),
-  category: varchar("category", { length: 100 }).notNull(),
-  subCategory: varchar("sub_category", { length: 100 }),
-  fuelType: varchar("fuel_type", { length: 100 }),
-  sourceDescription: text("source_description"),
-  isActive: boolean("is_active").default(true).notNull(),
-  measurementMethod: measurementMethodEnum("measurement_method").notNull().default("calculation"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const emissionSources = pgTable(
+  "emission_sources",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    equipmentId: uuid("equipment_id").references(() => equipment.id, { onDelete: "set null" }),
+    companyId: uuid("company_id").notNull(),
+    scope: scopeEnum("scope").notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    subCategory: varchar("sub_category", { length: 100 }),
+    fuelType: varchar("fuel_type", { length: 100 }),
+    sourceDescription: text("source_description"),
+    isActive: boolean("is_active").default(true).notNull(),
+    measurementMethod: measurementMethodEnum("measurement_method").notNull().default("calculation"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdx: index("idx_emission_sources_company_id").on(table.companyId),
+  })
+);
 
 export const emissionSourcesRelations = relations(emissionSources, ({ one }) => ({
   equipment: one(equipment, {

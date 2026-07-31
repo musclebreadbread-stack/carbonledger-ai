@@ -14,7 +14,17 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
+  /*
+   * Retries under CI, but not everywhere: `approvals-suppliers-actions.spec.ts`
+   * pins `retries: 0` for itself, because it mutates a shared in-memory store and
+   * a second attempt would run against state the first attempt already changed.
+   * The reasoning is in that file's header.
+   */
   retries: process.env.CI ? 2 : 0,
+  /*
+   * One worker under CI, for the same reason: workers are separate processes but
+   * they share the single server, so parallel specs would race on that same store.
+   */
   workers: process.env.CI ? 1 : undefined,
   /*
    * `open: "never"` matters: the default HTML reporter tries to serve the report

@@ -16,6 +16,24 @@
  *    against already-mutated state, so `retries` must stay at 0 for this file to
  *    be meaningful. That is a property of having no database, not of the tests.
  *
+ *    `retries: 0` is therefore pinned in the `configure` call below rather than
+ *    left to the project config, which sets `retries: 2` under CI. Two reasons it
+ *    belongs here and not there:
+ *
+ *      * in `mode: "serial"` a failure retries the **whole block** from the top,
+ *        so under the project default the second attempt would re-verify REQ-003
+ *        (already verified), re-review ER-2024-0121 (already rejected), and fail
+ *        on the transition guards rather than on whatever actually broke. The
+ *        real failure would be buried under a cascade of manufactured ones;
+ *      * worse, a retry could *pass* — the second attempt of an
+ *        already-mutated-state assertion sometimes agrees — turning a genuine
+ *        regression into a green run.
+ *
+ *    Pinning here rather than dropping `retries` project-wide is deliberate: a
+ *    retry is still worth having for the read-only specs, where a flake is a slow
+ *    navigation and re-running is a legitimate answer. It is only meaningless
+ *    where the test has already changed the world it is asserting about.
+ *
  * 2. **It only touches records nothing else asserts on.** The permanently
  *    rejected chain (ER-2024-0109), the permanently returned one (ER-2024-0124),
  *    the rejected/re-requested supplier pair (REQ-004/REQ-004R) and one submitted
@@ -32,7 +50,7 @@ import { MESSAGES } from "./fixtures";
 
 const ko = MESSAGES.ko;
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "serial", retries: 0 });
 
 /** The chain card for one record. */
 function chain(page: Page, recordLabel: string): Locator {

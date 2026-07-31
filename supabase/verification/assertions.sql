@@ -287,10 +287,70 @@ EXCEPTION
   WHEN insufficient_privilege THEN RAISE NOTICE 'ok   company_admin write on scope3_categories refused';
 END $$;
 
+-- ------------------------------------------------------------
+-- emission_factors: 0002 granted company_admin write on it, 0005 takes that
+-- back with RESTRICTIVE policies on INSERT/UPDATE/DELETE.
+--
+-- All three write paths are checked separately because they fail differently: a
+-- blocked INSERT raises insufficient_privilege, while a blocked UPDATE or DELETE
+-- simply matches no rows and reports success. Asserting only the INSERT would
+-- leave the two destructive paths unproven.
+--
+-- Read is checked too: a RESTRICTIVE `FOR ALL` would have been AND-ed into SELECT
+-- and made the factor library invisible to every tenant, which is the obvious way
+-- to get this fix wrong.
+-- ------------------------------------------------------------
+SELECT pg_temp.check('emission_factors readable by a tenant admin',
+  (SELECT count(*) FROM emission_factors), 1::bigint);
+
+DO $$
+BEGIN
+  INSERT INTO emission_factors
+    (set_id, category, unit_numerator, unit_denominator, co2_factor)
+  VALUES ('c3000000-1111-4000-8000-000000000001',
+          'stationary_combustion', 'kgCO2e', 'L', 0.001);
+  RAISE EXCEPTION 'FAIL a company_admin inserted into the global factor library';
+EXCEPTION
+  WHEN insufficient_privilege THEN RAISE NOTICE 'ok   company_admin insert on emission_factors refused';
+END $$;
+
+WITH updated AS (
+  UPDATE emission_factors SET co2_factor = 0.001 RETURNING 1
+)
+SELECT pg_temp.check('company_admin update on emission_factors affects no row',
+  (SELECT count(*) FROM updated), 0::bigint);
+
+WITH deleted AS (
+  DELETE FROM emission_factors RETURNING 1
+)
+SELECT pg_temp.check('company_admin delete on emission_factors affects no row',
+  (SELECT count(*) FROM deleted), 0::bigint);
+
+-- The row count above would also be zero if the row had simply become invisible,
+-- so check the value every other tenant calculates with is still what was seeded.
+SELECT pg_temp.check('the published factor still holds its seeded value',
+  (SELECT co2_factor FROM emission_factors
+   WHERE id = 'c5000000-1111-4000-8000-000000000001'), 2.606::numeric);
+
 SET request.jwt.claims TO '{"sub":"00000000-0000-4000-8000-000000000000","user_metadata":{"role":"super_admin"}}';
 INSERT INTO scope3_categories (category_number, name) VALUES (2, 'Capital goods');
 SELECT pg_temp.check('super_admin may extend reference data',
   (SELECT count(*) FROM scope3_categories), 2::bigint);
+
+-- The platform operator is not locked out by 0005: the RESTRICTIVE policies
+-- narrow to super_admin rather than to nobody.
+INSERT INTO emission_factors
+  (set_id, category, unit_numerator, unit_denominator, co2_factor)
+VALUES ('c3000000-1111-4000-8000-000000000001',
+        'mobile_combustion', 'kgCO2e', 'L', 2.322);
+SELECT pg_temp.check('super_admin may publish a factor',
+  (SELECT count(*) FROM emission_factors), 2::bigint);
+
+UPDATE emission_factors SET co2_factor = 2.610
+  WHERE id = 'c5000000-1111-4000-8000-000000000001';
+SELECT pg_temp.check('super_admin may correct a published factor',
+  (SELECT co2_factor FROM emission_factors
+   WHERE id = 'c5000000-1111-4000-8000-000000000001'), 2.610::numeric);
 
 -- ============================================================
 -- 9. The other tenant sees its own rows, mirror image

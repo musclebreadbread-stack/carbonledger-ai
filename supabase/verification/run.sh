@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Applies 0001 -> 0002 -> 0003 to a throwaway Postgres 16 and runs the RLS
-# assertions as a non-owner role. Must run start-to-finish in one shell: the
-# sandbox does not keep containers alive between commands.
+# Applies 0001 -> 0005 to a throwaway Postgres 16 and runs the RLS assertions as
+# a non-owner role. Must run start-to-finish in one shell: the sandbox does not
+# keep containers alive between commands.
 set -uo pipefail
 
 # Unique per run and removed by the trap: a container left behind by an aborted
@@ -34,6 +34,7 @@ for f in \
   supabase/migrations/0002_rls_policies.sql \
   supabase/migrations/0003_rls_policies_phase2.sql \
   supabase/migrations/0004_target_progress_uniqueness.sql \
+  supabase/migrations/0005_restrict_emission_factor_writes.sql \
   supabase/verification/roles.sql \
   supabase/verification/seed.sql
 do

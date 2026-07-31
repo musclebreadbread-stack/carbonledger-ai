@@ -25,7 +25,7 @@ as four different users, and check what each can actually see and change.
 | `roles.sql`      | Creates `app_user`, a non-owner role. RLS is _not_ applied to superusers or to a table's owner, so running the assertions as `postgres` would pass no matter how broken the policies were.                       |
 | `seed.sql`       | Two tenants with a row in every table `0003` governs, plus a completed and signed approval step, which is the row that has to be frozen.                                                                         |
 | `assertions.sql` | The checks. Each raises on failure, so psql's exit status is the verdict.                                                                                                                                        |
-| `run.sh`         | Starts the container, applies `auth-stub` → `0001` → `0002` → `0003` → `roles` → `seed`, prints the policy count per table, runs the assertions, removes the container.                                          |
+| `run.sh`         | Starts the container, applies `auth-stub` → `0001` → `0002` → `0003` → `0004` → `0005` → `roles` → `seed`, prints the policy count per table, runs the assertions, removes the container.                        |
 
 ## What is asserted
 
@@ -41,6 +41,11 @@ as four different users, and check what each can actually see and change.
   one of their users access to another tenant's site;
 - reference data (`scope3_categories`, `unit_conversions`,
   `emission_factor_sets`) is readable by all and writable only by `super_admin`;
+- the global `emission_factors` library stays readable by every tenant but is
+  writable only by `super_admin`: a `company_admin` is refused on `INSERT` and
+  affects zero rows on `UPDATE` and `DELETE`, and the seeded factor value is
+  still intact afterwards. This is what `0005` exists to guarantee — with `0005`
+  left out the `INSERT` check fails, which is the point of asserting it;
 - a session with no JWT sees nothing;
 - no table in `public` is left without RLS enabled or without a policy.
 

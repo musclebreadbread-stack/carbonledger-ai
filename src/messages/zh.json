@@ -503,8 +503,26 @@
     "signature_algorithm": "算法：{algorithm}",
     "signature_note": "电子签名用于验证已审批的排放数值未被更改。未配置签名密钥时仅保证完整性，不保证签名者真实性。",
     "rejected_note": "被退回的事项在流程未达到100%的状态下结束。",
-    "readonly_note": "本页面目前仅供查看。各阶段允许执行的处理规则已在库层实现，但尚未接入服务器操作。",
     "returned_note": "要求重新提交不会结束流程，而是将事项退回编制人。",
+    "in_memory_note": "当前环境未连接数据库。处理结果仅记录在服务器进程内存中：后续请求可以读到，但服务器重启后会重置为样例状态，且不会在多个服务器实例之间共享。",
+    "acting_as": "以 {name}（{role}）身份处理，电子签名也记录为该用户。",
+    "decision_stage": "待处理阶段：{stage}",
+    "decision_comment_label": "处理意见",
+    "decision_comment_placeholder": "处理意见（可选）",
+    "decision_closed": "该流程已结束，不允许重新签名、重新指派或删除。",
+    "decision_forbidden": "当前权限或负责分配不允许在此阶段执行处理。",
+    "decision_success": "已对 {record} 执行{action}。电子签名已记录。",
+    "errors": {
+      "unauthenticated": "需要先登录。",
+      "forbidden_role": "您没有执行此处理的权限。",
+      "wrong_company": "无法处理其他公司的审批事项。",
+      "not_found": "未找到审批事项。",
+      "instance_closed": "该审批事项已结束。",
+      "action_not_allowed": "当前阶段不允许执行该处理。",
+      "step_frozen": "已完成签名的阶段无法修改。",
+      "not_assignee": "只有该阶段的负责人才能执行处理。",
+      "invalid_input": "输入内容不正确。"
+    },
     "stages": {
       "author": "编制",
       "reviewer": "复核",
@@ -620,6 +638,15 @@
   },
   "supplier_rejection_reasons": {
     "no_methodology_disclosed": "未说明核算方法，无法验证"
+  },
+  "user_roles": {
+    "super_admin": "平台管理员",
+    "company_admin": "公司管理员",
+    "site_admin": "厂区管理员",
+    "reviewer": "审核人",
+    "auditor": "审计人",
+    "viewer": "查看人",
+    "consultant": "顾问"
   },
   "scope3": {
     "title": "Scope 3类别",

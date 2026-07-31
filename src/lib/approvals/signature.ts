@@ -28,7 +28,7 @@
  * Handler, a Server Action or a script without a Node-only import.
  */
 
-import type { WorkflowAction, WorkflowStage } from "./types";
+import type { ApprovalInstance, WorkflowAction, WorkflowStage, WorkflowStep } from "./types";
 
 /** The facts a signature commits to. All of them go into the digest. */
 export interface SignaturePayload {
@@ -49,6 +49,44 @@ export interface SignaturePayload {
   emissions: number;
   /** ISO-8601 instant of signing. */
   signedAt: string;
+}
+
+/**
+ * The one place a payload is built from a step. Everything that signs and
+ * everything that verifies goes through here.
+ *
+ * This is load-bearing, not tidiness. The verification badge on `/approvals`
+ * re-derives the payload from the instance and compares it against the stored
+ * digest; if signing used a second, independently written builder the two would
+ * drift on the first change to either, and the badge would start reporting
+ * "invalid" for signatures that were fine — or worse, keep reporting "verified"
+ * for a payload it was not actually checking.
+ *
+ * Returns null for a step that has not been signed: there is no payload for a
+ * decision that has not been taken, and inventing one (empty strings, epoch
+ * timestamps) would let an unsigned step produce a digest that looks like
+ * evidence.
+ */
+export function stepSignaturePayload(
+  instance: ApprovalInstance,
+  step: WorkflowStep
+): SignaturePayload | null {
+  if (step.action === null || step.completedAt === null || step.signerId === null) {
+    return null;
+  }
+
+  return {
+    recordType: instance.recordType,
+    recordId: instance.recordId,
+    stage: step.stage,
+    action: step.action,
+    signerId: step.signerId,
+    // Falling back to the id keeps the payload well-defined if a display name
+    // was never captured, without silently signing an empty field.
+    signerName: step.signerName ?? step.signerId,
+    emissions: instance.emissions,
+    signedAt: step.completedAt,
+  };
 }
 
 const VERSION = "v1";

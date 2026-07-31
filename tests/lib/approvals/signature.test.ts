@@ -10,10 +10,11 @@ import {
   formatSignatureShort,
   signPayload,
   signatureAlgorithm,
+  stepSignaturePayload,
   verifySignature,
   type SignaturePayload,
 } from "@/lib/approvals/signature";
-import { buildSampleApprovalsOverview, sampleSignaturePayload, sampleSignerId } from "@/lib/approvals/sample-data";
+import { buildSampleApprovalsOverview } from "@/lib/approvals/sample-data";
 import { WORKFLOW_STAGES, chainProgressPercent, countByStage, currentStage, isActionAllowed } from "@/lib/approvals/types";
 
 function payload(overrides: Partial<SignaturePayload> = {}): SignaturePayload {
@@ -183,12 +184,11 @@ describe("the sample approval instances", () => {
     for (const instance of instances) {
       for (const step of instance.steps) {
         if (step.digitalSignature === null) continue;
-        const signerId = sampleSignerId(instance.id, step.stepNumber);
-        expect(signerId).not.toBeNull();
-        const verified = await verifySignature(
-          step.digitalSignature,
-          sampleSignaturePayload(instance, step, signerId as string)
-        );
+        // Verified through the same builder that produced the payload, which is
+        // the property that makes the page's badge meaningful.
+        const payload = stepSignaturePayload(instance, step);
+        expect(payload).not.toBeNull();
+        const verified = await verifySignature(step.digitalSignature, payload as SignaturePayload);
         expect(verified).toBe(true);
         checked += 1;
       }

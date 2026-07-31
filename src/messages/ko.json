@@ -503,8 +503,26 @@
     "signature_algorithm": "알고리즘: {algorithm}",
     "signature_note": "전자서명은 승인된 배출량 수치가 변경되지 않았음을 검증합니다. 서명키가 설정되지 않은 경우 무결성만 보장하며 서명자 진위는 보장하지 않습니다.",
     "rejected_note": "반려된 건은 진행률이 100%에 도달하지 않은 상태로 종료됩니다.",
-    "readonly_note": "이 화면은 현재 조회 전용입니다. 단계별 허용 조치 규칙은 라이브러리 계층에 구현되어 있으나 서버 액션은 아직 연결되지 않았습니다.",
     "returned_note": "재작성 요청(재요청)은 결재를 종료하지 않고 작성자에게 되돌립니다.",
+    "in_memory_note": "데이터베이스가 연결되지 않은 환경입니다. 조치 결과는 서버 프로세스 메모리에만 기록되므로 이후 요청에서는 유지되지만 서버 재시작 시 샘플 상태로 초기화되며, 여러 서버 인스턴스 간에 공유되지 않습니다.",
+    "acting_as": "{name} ({role}) 권한으로 조치하며, 전자서명도 이 사용자로 기록됩니다.",
+    "decision_stage": "조치 대상 단계: {stage}",
+    "decision_comment_label": "처리 의견",
+    "decision_comment_placeholder": "처리 의견 (선택)",
+    "decision_closed": "종결된 결재입니다. 재서명·재배정·삭제는 허용되지 않습니다.",
+    "decision_forbidden": "현재 권한 또는 담당 배정으로는 이 단계에서 조치할 수 없습니다.",
+    "decision_success": "{record} 건을 {action} 처리했습니다. 전자서명이 기록되었습니다.",
+    "errors": {
+      "unauthenticated": "로그인이 필요합니다.",
+      "forbidden_role": "이 조치를 수행할 권한이 없습니다.",
+      "wrong_company": "다른 회사의 결재 건에는 접근할 수 없습니다.",
+      "not_found": "결재 건을 찾을 수 없습니다.",
+      "instance_closed": "이미 종결된 결재 건입니다.",
+      "action_not_allowed": "현재 단계에서 허용되지 않는 조치입니다.",
+      "step_frozen": "이미 서명이 완료된 단계는 변경할 수 없습니다.",
+      "not_assignee": "해당 단계의 담당자만 조치할 수 있습니다.",
+      "invalid_input": "입력값이 올바르지 않습니다."
+    },
     "stages": {
       "author": "작성",
       "reviewer": "검토",
@@ -620,6 +638,15 @@
   },
   "supplier_rejection_reasons": {
     "no_methodology_disclosed": "산정 방법론을 제시하지 않아 검증 불가"
+  },
+  "user_roles": {
+    "super_admin": "플랫폼 관리자",
+    "company_admin": "회사 관리자",
+    "site_admin": "사업장 관리자",
+    "reviewer": "검토자",
+    "auditor": "감사인",
+    "viewer": "조회자",
+    "consultant": "컨설턴트"
   },
   "scope3": {
     "title": "Scope 3 카테고리",

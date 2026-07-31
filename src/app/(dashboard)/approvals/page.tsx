@@ -11,26 +11,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  getApprovalsOverview,
-  sampleSignaturePayload,
-  sampleSignerId,
-  sampleSignerName,
-} from "@/lib/approvals/sample-data";
+import { getCurrentActor } from "@/lib/auth/current-actor";
+import { getApprovalsOverview } from "@/lib/approvals/store";
 import {
   formatSignatureShort,
   signatureAlgorithm,
+  stepSignaturePayload,
   verifySignature,
 } from "@/lib/approvals/signature";
+import { authorizeApprovalAction } from "@/lib/approvals/transitions";
 import {
   chainProgressPercent,
   completedSteps,
   currentStage,
+  WORKFLOW_ACTIONS,
   WORKFLOW_STAGES,
   countByStage,
   type ApprovalInstance,
+  type WorkflowAction,
   type WorkflowInstanceStatus,
 } from "@/lib/approvals/types";
+import { ApprovalDecisionForm } from "./approval-decision-form";
 
 /**
  * Approval workflow, served at `/approvals`.
@@ -48,9 +49,15 @@ import {
  * Verification runs on the server, which is also where the signing key lives, so
  * an HMAC signature stays verifiable without shipping the key to the browser.
  *
- * Scope limit worth stating plainly: this page is read-only. `isActionAllowed`
- * in the library layer encodes which action each stage may take, but no Server
- * Action is wired up yet, so nothing here can advance a chain.
+ * The chain is advanced by the Server Action in `./actions.ts`. Which buttons a
+ * chain offers is decided by running the real authorisation function
+ * (`authorizeApprovalAction`) once per candidate action, so the UI cannot present
+ * a decision the server would refuse — and the server re-checks anyway, since the
+ * action is a POST endpoint reachable without this page.
+ *
+ * Persistence is worth stating plainly: there is no database. Decisions are
+ * written to the in-memory store in `src/lib/approvals/store.ts`, so they survive
+ * between requests to the same server process and no further. The page says so.
  */
 
 const STATUS_VARIANT: Record<
@@ -83,19 +90,23 @@ async function verifyInstance(
       continue;
     }
 
-    const signerId = sampleSignerId(instance.id, step.stepNumber);
-    if (signerId === null) {
-      // A stored signature we cannot attribute to a signer cannot be checked.
+    // Rebuilt with `stepSignaturePayload`, the same builder that produced the
+    // payload when the step was signed. That shared builder is what makes the
+    // badge meaningful: an earlier version of this page reconstructed the signer
+    // from a fixture lookup, which would have reported "invalid" for every step a
+    // Server Action legitimately signed.
+    const payload = stepSignaturePayload(instance, step);
+    if (payload === null) {
+      // A stored signature we cannot rebuild a payload for cannot be checked.
       // Reporting "verified" would be the worst possible default.
-      results.set(step.stepNumber, { state: "invalid", signerName: null });
+      results.set(step.stepNumber, { state: "invalid", signerName: step.signerName });
       continue;
     }
 
-    const payload = sampleSignaturePayload(instance, step, signerId);
     const valid = await verifySignature(step.digitalSignature, payload);
     results.set(step.stepNumber, {
       state: valid ? "verified" : "invalid",
-      signerName: sampleSignerName(signerId),
+      signerName: step.signerName,
     });
   }
 
@@ -107,11 +118,26 @@ export default async function ApprovalsPage() {
   const tComments = await getTranslations("approval_comments");
   const locale = await getLocale();
 
+  const tRoles = await getTranslations("user_roles");
+
   const overview = await getApprovalsOverview();
   const { instances } = overview;
 
+  const actor = await getCurrentActor();
+
   const counts = countByStage(instances);
   const algorithm = signatureAlgorithm();
+
+  /**
+   * Decisions this actor may take on this instance, derived by asking the same
+   * authorisation function the Server Action will ask. Deriving the buttons from
+   * the rule rather than restating the rule in the UI is what keeps the two from
+   * disagreeing — a button that leads to a refusal is worse than no button.
+   */
+  const allowedActionsFor = (instance: ApprovalInstance): WorkflowAction[] =>
+    actor === null
+      ? []
+      : WORKFLOW_ACTIONS.filter((action) => authorizeApprovalAction(actor, instance, action).ok);
 
   const verifications = new Map<string, Awaited<ReturnType<typeof verifyInstance>>>();
   for (const instance of instances) {
@@ -209,15 +235,29 @@ export default async function ApprovalsPage() {
         <CardHeader>
           <CardTitle>{t("chain_title")}</CardTitle>
           <CardDescription>{t("signature_algorithm", { algorithm })}</CardDescription>
+          {/* Who the signature will be attributed to, and under which role. Shown
+              because it is the answer to "why is that button missing" and because
+              a signature attributed to the wrong person is the failure mode this
+              whole screen exists to prevent. */}
+          <CardDescription data-testid="approval-actor">
+            {actor === null
+              ? t("errors.unauthenticated")
+              : t("acting_as", { name: actor.name, role: tRoles(actor.role) })}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {instances.map((instance) => {
             const verified = verifications.get(instance.id);
+            const stage = currentStage(instance);
             return (
               <div
                 key={instance.id}
                 className="space-y-3 rounded-md border p-4"
                 data-testid="approval-chain"
+                // Stable hook for the E2E specs, which need to address one chain
+                // without depending on translated text.
+                data-record-label={instance.recordLabel}
+                data-status={instance.status}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="font-semibold">
@@ -236,7 +276,11 @@ export default async function ApprovalsPage() {
                     only what has happened. */}
                 <ol className="flex flex-wrap items-center gap-2 text-xs">
                   {WORKFLOW_STAGES.map((stage, index) => {
-                    const done = index < completedSteps(instance).length;
+                    // Keyed on `currentStep`, not on how many steps are in the
+                    // log: an instance returned to the author has two decisions
+                    // recorded and nothing settled, and marking the first two
+                    // stages done would claim otherwise.
+                    const done = index < instance.currentStep;
                     return (
                       <li key={stage} className="flex items-center gap-2">
                         <span
@@ -325,6 +369,21 @@ export default async function ApprovalsPage() {
                     })}
                   </TableBody>
                 </Table>
+
+                {/* The decision controls sit under the chain they act on rather
+                    than in the list table above: the buttons need room, and the
+                    reader needs the history in view while deciding. */}
+                <div className="border-t pt-3" data-testid="approval-decision">
+                  {stage === null ? (
+                    <p className="text-xs text-muted-foreground">{t("decision_closed")}</p>
+                  ) : (
+                    <ApprovalDecisionForm
+                      instanceId={instance.id}
+                      stage={stage}
+                      allowedActions={allowedActionsFor(instance)}
+                    />
+                  )}
+                </div>
               </div>
             );
           })}
@@ -335,7 +394,7 @@ export default async function ApprovalsPage() {
         <p>{t("signature_note")}</p>
         <p>{t("returned_note")}</p>
         <p>{t("rejected_note")}</p>
-        <p>{t("readonly_note")}</p>
+        <p>{t("in_memory_note")}</p>
       </div>
     </div>
   );

@@ -35,15 +35,45 @@ export const WORKFLOW_STAGES: readonly WorkflowStage[] = [
  */
 export type WorkflowAction = "submit" | "review" | "approve" | "reject" | "return_for_revision";
 
+/** Every action, for exhaustive iteration and for validating untrusted input. */
+export const WORKFLOW_ACTIONS: readonly WorkflowAction[] = [
+  "submit",
+  "review",
+  "approve",
+  "reject",
+  "return_for_revision",
+] as const;
+
+/** Narrows a value off the wire (a form field) to a known action. */
+export function isWorkflowAction(value: unknown): value is WorkflowAction {
+  return typeof value === "string" && (WORKFLOW_ACTIONS as readonly string[]).includes(value);
+}
+
 /** Instance-level status, matching the `workflow_status` enum. */
 export type WorkflowInstanceStatus = "pending" | "in_progress" | "approved" | "rejected";
 
-/** A completed or awaiting step of one instance. */
+/**
+ * A completed or awaiting step of one instance.
+ *
+ * `steps` is an append-only log, not a fixed array of four. A return for
+ * revision sends the record back to the author, so the same stage can appear
+ * more than once — which is why `stage` is stored on the row rather than derived
+ * from the position, and why `stepNumber` is the log index (a stable key and
+ * ordering) rather than an index into `WORKFLOW_STAGES`.
+ */
 export interface WorkflowStep {
+  /** Position in the log, from 0. Stable identity for one attempt at one stage. */
   stepNumber: number;
   stage: WorkflowStage;
   /** Key under `approvals.roles` describing who acts at this stage. */
   assigneeNameKey: string | null;
+  /**
+   * User the step is assigned to, mirroring `workflow_steps.assignee_id`. Null
+   * while unclaimed, which 0003's `approver_create_workflow_steps` treats as
+   * claimable by any approver; a non-null value may only be acted on by that
+   * user.
+   */
+  assigneeId: string | null;
   action: WorkflowAction | null;
   /** Key under `approval_comments`, or a stored free-text comment. */
   commentKey: string | null;
@@ -53,6 +83,10 @@ export interface WorkflowStep {
    * `./signature.ts` for the format.
    */
   digitalSignature: string | null;
+  /** Signer's user id, null until signed. Part of the signed payload. */
+  signerId: string | null;
+  /** Signer's display name as at signing time, kept for the human-readable trail. */
+  signerName: string | null;
   /** ISO-8601 timestamp, or null while the step is outstanding. */
   completedAt: string | null;
 }
@@ -60,6 +94,13 @@ export interface WorkflowStep {
 /** One record moving through the chain. */
 export interface ApprovalInstance {
   id: string;
+  /**
+   * Owning tenant. `workflow_instances` reaches it through its definition (see
+   * `auth.company_owns_workflow_instance` in 0003); it is denormalised onto the
+   * instance here so a Server Action can perform the same tenancy check without
+   * a second lookup.
+   */
+  companyId: string;
   /** Type of record under approval, e.g. `emission_record`. */
   recordType: string;
   recordId: string;
@@ -74,6 +115,10 @@ export interface ApprovalInstance {
   /**
    * Index into `WORKFLOW_STAGES` of the stage awaiting action. Equal to
    * `WORKFLOW_STAGES.length` once the chain is complete.
+   *
+   * Not the same as the number of steps taken, and the difference is the whole
+   * point of a return for revision: an instance sent back from the reviewer has
+   * two steps in its log and is waiting on stage 0 again.
    */
   currentStep: number;
   status: WorkflowInstanceStatus;
@@ -98,11 +143,29 @@ export function currentStage(instance: ApprovalInstance): WorkflowStage | null {
   return WORKFLOW_STAGES[instance.currentStep] ?? null;
 }
 
-/** Steps that have been acted on, in stage order. */
+/** Steps that have been acted on, in log order. */
 export function completedSteps(instance: ApprovalInstance): WorkflowStep[] {
   return instance.steps
     .filter((step) => step.completedAt !== null)
     .sort((a, b) => a.stepNumber - b.stepNumber);
+}
+
+/**
+ * The step an action would be recorded against: the earliest one not yet
+ * completed. Null when the chain is finished.
+ *
+ * Reads the log rather than indexing by `currentStep`, because after a return
+ * the outstanding author step sits further down the log than position 0. The
+ * invariant that ties the two together — the pending step's stage is
+ * `WORKFLOW_STAGES[currentStep]` — is asserted in the transition tests rather
+ * than assumed here.
+ */
+export function pendingStep(instance: ApprovalInstance): WorkflowStep | null {
+  return (
+    [...instance.steps]
+      .sort((a, b) => a.stepNumber - b.stepNumber)
+      .find((step) => step.completedAt === null) ?? null
+  );
 }
 
 /**

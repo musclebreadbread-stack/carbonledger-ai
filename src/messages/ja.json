@@ -503,8 +503,26 @@
     "signature_algorithm": "アルゴリズム: {algorithm}",
     "signature_note": "電子署名は承認された排出量の数値が変更されていないことを検証します。署名鍵が設定されていない場合は完全性のみを保証し、署名者の真正性は保証しません。",
     "rejected_note": "差戻された案件は進捗率が100%に達しないまま終了します。",
-    "readonly_note": "この画面は現時点では参照専用です。段階別の許可される処置のルールはライブラリ層に実装済みですが、サーバーアクションには未接続です。",
     "returned_note": "再作成依頼は決裁を終了させず、作成者に差し戻します。",
+    "in_memory_note": "データベースが接続されていない環境です。処置の結果はサーバープロセスのメモリにのみ記録されるため、以降のリクエストでは保持されますが、サーバー再起動時にサンプル状態へ初期化され、複数のサーバーインスタンス間では共有されません。",
+    "acting_as": "{name}（{role}）として処置し、電子署名もこのユーザーで記録されます。",
+    "decision_stage": "処置対象の段階: {stage}",
+    "decision_comment_label": "処置コメント",
+    "decision_comment_placeholder": "処置コメント（任意）",
+    "decision_closed": "終了した決裁です。再署名・再割当・削除は許可されていません。",
+    "decision_forbidden": "現在の権限または担当割当では、この段階で処置できません。",
+    "decision_success": "{record} を{action}しました。電子署名を記録しました。",
+    "errors": {
+      "unauthenticated": "ログインが必要です。",
+      "forbidden_role": "この処置を行う権限がありません。",
+      "wrong_company": "他社の決裁案件にはアクセスできません。",
+      "not_found": "決裁案件が見つかりません。",
+      "instance_closed": "すでに終了した決裁案件です。",
+      "action_not_allowed": "現在の段階では許可されていない処置です。",
+      "step_frozen": "すでに署名済みの段階は変更できません。",
+      "not_assignee": "その段階の担当者のみが処置できます。",
+      "invalid_input": "入力値が正しくありません。"
+    },
     "stages": {
       "author": "作成",
       "reviewer": "検討",
@@ -620,6 +638,15 @@
   },
   "supplier_rejection_reasons": {
     "no_methodology_disclosed": "算定方法が示されておらず検証不能"
+  },
+  "user_roles": {
+    "super_admin": "プラットフォーム管理者",
+    "company_admin": "会社管理者",
+    "site_admin": "事業所管理者",
+    "reviewer": "検証者",
+    "auditor": "監査人",
+    "viewer": "閲覧者",
+    "consultant": "コンサルタント"
   },
   "scope3": {
     "title": "Scope 3カテゴリ",

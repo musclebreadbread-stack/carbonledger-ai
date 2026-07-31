@@ -503,8 +503,26 @@
     "signature_algorithm": "Algorithm: {algorithm}",
     "signature_note": "A signature verifies that the approved emission figure has not changed since sign-off. Without a configured signing key it proves integrity only, not signer authenticity.",
     "rejected_note": "A rejected item ends without the chain reaching 100%.",
-    "readonly_note": "This screen is read-only for now. The rule for which action each stage may take exists in the library layer but is not yet wired to server actions.",
     "returned_note": "A return for revision sends the item back to the author without closing the chain.",
+    "in_memory_note": "No database is connected here. A decision is recorded in the serving process's memory only: it persists across later requests, but a server restart resets everything to the sample state, and nothing is shared between server instances.",
+    "acting_as": "Acting as {name} ({role}); the signature is recorded against this user.",
+    "decision_stage": "Stage being acted on: {stage}",
+    "decision_comment_label": "Decision comment",
+    "decision_comment_placeholder": "Comment (optional)",
+    "decision_closed": "This chain is closed. Re-signing, reassignment and deletion are not permitted.",
+    "decision_forbidden": "Your role or assignment does not permit an action at this stage.",
+    "decision_success": "{record} was {action}. The digital signature has been recorded.",
+    "errors": {
+      "unauthenticated": "You need to sign in.",
+      "forbidden_role": "Your role does not permit this action.",
+      "wrong_company": "You cannot act on another company's approval.",
+      "not_found": "Approval not found.",
+      "instance_closed": "This approval is already closed.",
+      "action_not_allowed": "That action is not permitted at the current stage.",
+      "step_frozen": "A step that has already been signed cannot be changed.",
+      "not_assignee": "Only the assignee of this step can act on it.",
+      "invalid_input": "The submitted values are not valid."
+    },
     "stages": {
       "author": "Authoring",
       "reviewer": "Review",
@@ -620,6 +638,15 @@
   },
   "supplier_rejection_reasons": {
     "no_methodology_disclosed": "No calculation methodology disclosed, so unverifiable"
+  },
+  "user_roles": {
+    "super_admin": "Platform administrator",
+    "company_admin": "Company administrator",
+    "site_admin": "Site administrator",
+    "reviewer": "Reviewer",
+    "auditor": "Auditor",
+    "viewer": "Viewer",
+    "consultant": "Consultant"
   },
   "scope3": {
     "title": "Scope 3 Categories",

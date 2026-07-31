@@ -25,7 +25,7 @@ if [ ${#migrations[@]} -eq 0 ]; then
   exit 1
 fi
 
-# Filename order is the apply order: 0001 -> 0002 -> 0003 -> 0004. Sorted
+# Filename order is the apply order: 0001 -> 0002 -> 0003 -> 0004 -> 0005. Sorted
 # explicitly rather than relying on the shell's collation.
 while IFS= read -r file; do
   echo "10-apply-migrations: applying ${file}"

@@ -42,13 +42,12 @@ services:
       # purpose: on a real Supabase project it would collide with the real
       # auth.jwt().
       #
-      # supabase/seed.sql is NOT mounted, and not because seeding is unwanted:
-      # it does not currently apply. It inserts users(full_name, status) and the
-      # schema has users(name, active), so initdb aborts with exit 3 and the
-      # container never becomes healthy. Mounting it once seed.sql matches the
-      # schema is a one-line change; fixing seed.sql is a separate defect.
+      # 20-seed.sql sorts after the migrations, so the sample data lands on the
+      # schema they create. initdb runs with ON_ERROR_STOP, so a seed that stops
+      # matching the schema fails the container rather than half-populating it.
       - ./supabase/verification/auth-stub.sql:/docker-entrypoint-initdb.d/00-auth-stub.sql:ro
       - ./docker/initdb/10-apply-migrations.sh:/docker-entrypoint-initdb.d/10-apply-migrations.sh:ro
+      - ./supabase/seed.sql:/docker-entrypoint-initdb.d/20-seed.sql:ro
       - ./supabase/migrations:/migrations:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]

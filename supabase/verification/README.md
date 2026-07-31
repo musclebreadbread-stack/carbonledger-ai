@@ -23,7 +23,7 @@ as four different users, and check what each can actually see and change.
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `auth-stub.sql`  | Supabase's `auth` schema, stubbed to the surface the migrations use: `auth.jwt()` reading claims out of a GUC, exactly as Supabase defines it. Not applied to a real Supabase project, which has the real thing. |
 | `roles.sql`      | Creates `app_user`, a non-owner role. RLS is _not_ applied to superusers or to a table's owner, so running the assertions as `postgres` would pass no matter how broken the policies were.                       |
-| `seed.sql`       | Two tenants with a row in every table `0003` governs, plus a completed and signed approval step, which is the row that has to be frozen.                                                                         |
+| `seed.sql`       | Two tenants with a row in every table `0003` governs, plus a completed and signed approval step, which is the row that has to be frozen. Not `supabase/seed.sql`, which is single-tenant sample data for local dev. |
 | `assertions.sql` | The checks. Each raises on failure, so psql's exit status is the verdict.                                                                                                                                        |
 | `run.sh`         | Starts the container, applies `auth-stub` → `0001` → `0002` → `0003` → `0004` → `0005` → `roles` → `seed`, prints the policy count per table, runs the assertions, removes the container.                        |
 
@@ -61,3 +61,9 @@ It now applies `auth-stub.sql` first and then runs the migrations from
 harness uses. **`auth-stub.sql` is shared by both**, deliberately, so the two
 cannot drift apart. It still does not belong in `supabase/migrations/`, where it
 would collide with the real `auth.jwt()` on a Supabase project.
+
+After the migrations, Compose applies the local-development sample data from
+`supabase/seed.sql` as `/docker-entrypoint-initdb.d/20-seed.sql`. The numeric
+prefix makes the order explicit, and Postgres initdb's error handling means a
+schema/seed mismatch prevents the database from being marked ready instead of
+leaving a partially seeded database.

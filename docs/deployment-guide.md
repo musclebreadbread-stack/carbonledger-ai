@@ -38,6 +38,27 @@ npx supabase db push
 npx supabase db seed
 ```
 
+### Deploy Edge Functions
+
+Three Deno functions in `supabase/functions/` deploy separately from the Next.js
+app and are not covered by the Vercel deployment:
+
+```bash
+npx supabase secrets set \
+  SUPPLIER_PORTAL_TOKEN_SECRET="$(openssl rand -hex 32)" \
+  EDGE_CRON_SECRET="$(openssl rand -hex 32)"
+
+npx supabase functions deploy supplier-intake
+npx supabase functions deploy supplier-request-reminders
+npx supabase functions deploy target-progress-rollup
+```
+
+`target-progress-rollup` requires migration `0004`, so run `db push` first. The two
+scheduled functions do nothing until `pg_cron` is pointed at them.
+
+Full instructions, including the scheduling SQL, the token scheme and the
+`verify_jwt` settings: [Edge Functions](./edge-functions.md).
+
 ### Configure Authentication
 
 1. Go to Supabase Dashboard > Authentication > Providers
@@ -118,10 +139,16 @@ npx @sentry/wizard@latest -i nextjs
 - [ ] Service role key never exposed to client
 - [ ] Database backups enabled (Supabase Pro)
 - [ ] SSL enforced for all connections
+- [ ] `SUPPLIER_PORTAL_TOKEN_SECRET` and `EDGE_CRON_SECRET` set — the Edge
+      Functions return `500 not_configured` rather than falling back to a default
+- [ ] Rate limiting in front of `supplier-intake`. It is a public endpoint and the
+      function itself does **not** throttle; see
+      [Edge Functions](./edge-functions.md#what-is-not-implemented)
 
 ## 6. Performance Optimization
 
-- Enable Edge Functions for frequently accessed API routes
+- Enable Vercel Edge runtime for frequently accessed API routes
+  (distinct from the Supabase Edge Functions above)
 - Configure CDN caching for static assets
 - Use Supabase connection pooling (pgbouncer)
 - Enable Next.js Image Optimization

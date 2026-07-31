@@ -33,6 +33,7 @@ for f in \
   supabase/migrations/0001_initial_schema.sql \
   supabase/migrations/0002_rls_policies.sql \
   supabase/migrations/0003_rls_policies_phase2.sql \
+  supabase/migrations/0004_target_progress_uniqueness.sql \
   supabase/verification/roles.sql \
   supabase/verification/seed.sql
 do

@@ -1,0 +1,33 @@
+# Supabase CLI configuration.
+#
+# Deliberately minimal: everything the CLI does not find here it defaults, and a
+# fuller file would be three hundred lines of values nobody in this project has
+# made a decision about. The only settings below are the ones that would be *wrong*
+# by default.
+#
+# The one that matters is `verify_jwt` on `supplier-intake`. Left at its default of
+# true, the platform rejects the request before the function runs, and a supplier —
+# who by design has no Supabase identity, see
+# supabase/migrations/0003_rls_policies_phase2.sql — could never submit anything.
+# It has to be false, and the function's own token check is what replaces it.
+
+project_id = "carbonledger-ai"
+
+[functions.supplier-intake]
+# Public by necessity. Authority comes from an HMAC-signed capability token in the
+# request body, verified in supabase/functions/_shared/auth.ts and bound to one
+# data request, one supplier and one company. `verify_jwt = true` here would be a
+# check the intended caller can never pass.
+verify_jwt = false
+
+[functions.supplier-request-reminders]
+# Scheduler-only. `verify_jwt` is kept on as a first gate, but it is not the real
+# one: with it enabled the platform accepts *any* valid project JWT, including the
+# anon key that ships in the browser bundle. The function additionally requires the
+# `x-cron-secret` header, which is what actually restricts it.
+verify_jwt = true
+
+[functions.target-progress-rollup]
+# Same as above. This job rewrites reported target progress for every tenant, so it
+# is the last thing that should be reachable with a key from the front end.
+verify_jwt = true

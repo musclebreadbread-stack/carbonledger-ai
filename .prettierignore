@@ -1,0 +1,12 @@
+# Supabase Edge Functions are formatted by `deno fmt`, configured in
+# supabase/functions/deno.json. Letting Prettier at them as well would mean two
+# formatters with different opinions rewriting the same files, and `deno fmt
+# --check` (part of `deno task verify`) failing after every `pnpm format`.
+supabase/functions/
+
+# Generated or vendored output.
+.next/
+coverage/
+playwright-report/
+test-results/
+node_modules/

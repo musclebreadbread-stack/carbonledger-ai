@@ -93,10 +93,20 @@ src/
 tests/                          # Test files
 supabase/
   migrations/                   # Database migrations
+  functions/                    # Edge Functions (Deno, own toolchain)
+    _shared/                    # Pure logic: auth, validation, aggregation
+    supplier-intake/            # Public supplier submission endpoint
+    supplier-request-reminders/ # Scheduled: issue and chase data requests
+    target-progress-rollup/     # Scheduled: recompute target_progress
   seed.sql                      # Sample data
 docs/                           # Documentation
 .github/workflows/              # CI/CD pipelines
 ```
+
+Edge Functions are Deno and are deliberately excluded from `tsconfig.json`,
+ESLint and Prettier; `deno task verify` in `supabase/functions/` runs their
+formatting, lint, type check and tests. See
+[Edge Functions](./edge-functions.md).
 
 ## Getting Started
 
@@ -133,6 +143,12 @@ pnpm dev
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Yes (server) |
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `OPENAI_API_KEY` | OpenAI API key (AI features) | Optional |
+| `SUPPLIER_PORTAL_TOKEN_SECRET` | HMAC key for supplier submission tokens | Yes (Edge Functions) |
+| `EDGE_CRON_SECRET` | Shared secret for the scheduled functions | Yes (Edge Functions) |
+| `SUPPLIER_NOTIFICATION_WEBHOOK_URL` | Where supplier reminder digests are POSTed | Optional |
+
+The last three are Edge Function secrets, set with `supabase secrets set` rather
+than in Vercel — see [Edge Functions](./edge-functions.md).
 
 ### Development Commands
 

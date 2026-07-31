@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { DashboardShell } from "@/components/features/dashboard-shell";
 import { actorDisplayName } from "@/lib/auth/current-actor";
 import { getSessionSummary } from "@/lib/auth/session";
+import { getNotifications } from "@/lib/notifications";
 import { visibleNavRoutes } from "@/lib/navigation";
 
 /**
@@ -20,6 +21,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const actor = session.actor;
   const displayName = actor === null ? "—" : actorDisplayName(actor, tActor("unauthenticated_operator"));
+  const routes = visibleNavRoutes(session.isSignedIn && actor !== null ? actor.role : null);
+  const visiblePaths = new Set(routes.map((route) => route.href));
+  const notifications = (await getNotifications()).filter((item) => visiblePaths.has(item.href));
 
   return (
     <DashboardShell
@@ -27,9 +31,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
        * Filter the nav by role only for a session someone deliberately started.
        * An anonymous visitor to a database-less deployment sees the whole product;
        * hiding two thirds of it behind a role they never chose would misrepresent
-       * what exists. Signing in as the viewer applies the filter.
+       * what exists. Signing in as the viewer applies the filter. Notifications
+       * use the same route set so the bell cannot reintroduce hidden destinations.
        */
-      routes={visibleNavRoutes(session.isSignedIn && actor !== null ? actor.role : null)}
+      routes={routes}
+      notifications={notifications}
       user={{
         name: displayName,
         email: session.email,

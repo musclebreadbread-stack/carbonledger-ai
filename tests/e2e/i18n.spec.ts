@@ -14,6 +14,7 @@
 
 import { expect, test } from "@playwright/test";
 import { LOCALE_COOKIE, LOCALE_DISPLAY_NAMES, MESSAGES, dashboardHeading } from "./fixtures";
+import { buildSampleDashboardData } from "../../src/lib/dashboard/sample-data";
 
 /** Opens the switcher and picks a language by its (locale-invariant) name. */
 async function switchLanguage(
@@ -115,5 +116,53 @@ test.describe("language switcher", () => {
 
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.getByText(MESSAGES.en.home.tagline)).toBeVisible();
+  });
+});
+
+
+test.describe("Korean-first server rendering", () => {
+  test.use({ extraHTTPHeaders: { "Accept-Language": "en-US,en;q=0.9" } });
+
+  test("ignores an English browser preference when no locale cookie exists", async ({ page }) => {
+    await page.goto("/dashboard");
+
+    await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+    await expect(page.locator("h1")).toHaveText(dashboardHeading("ko"));
+  });
+
+  test("server HTML and metadata are Korean on the first response", async ({ request, page }) => {
+    const response = await request.get("/dashboard", {
+      headers: { "Accept-Language": "en-US,en;q=0.9" },
+    });
+    const html = await response.text();
+    expect(response.status()).toBe(200);
+    expect(html).toContain('<html lang="ko"');
+    expect(html).toContain(dashboardHeading("ko"));
+
+    await page.goto("/dashboard");
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "ko_KR");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      MESSAGES.ko.app.description
+    );
+    await expect(page).toHaveTitle(MESSAGES.ko.app.title);
+  });
+
+  test("server-rendered numbers use the active Korean locale", async ({ page }) => {
+    await page.goto("/dashboard");
+    const total = buildSampleDashboardData().kpis.totalEmissions;
+    const expected = `${new Intl.NumberFormat("ko", { maximumFractionDigits: 0 }).format(total)} tCO2e`;
+
+    await expect(page.getByText(expected, { exact: true }).first()).toBeVisible();
+  });
+
+  test("server-rendered dates use the active Korean locale", async ({ page }) => {
+    await page.goto("/suppliers");
+    const expected = new Intl.DateTimeFormat("ko", {
+      dateStyle: "medium",
+      timeZone: "UTC",
+    }).format(new Date("2024-11-30"));
+
+    await expect(page.getByText(expected, { exact: true }).first()).toBeVisible();
   });
 });

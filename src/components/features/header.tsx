@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LocaleSwitcher } from "@/components/features/locale-switcher";
 import { ThemeToggle } from "@/components/features/theme-toggle";
+import { NotificationMenu } from "@/components/features/notification-menu";
+import type { LocalisedNotification } from "@/lib/notifications";
 import { signOutAction } from "@/app/(auth)/actions";
 
 export interface HeaderUser {
@@ -32,6 +34,8 @@ export interface HeaderUser {
 
 interface HeaderProps {
   onMenuToggle?: () => void;
+  onCommandPaletteOpen: () => void;
+  notifications: LocalisedNotification[];
   user: HeaderUser;
 }
 
@@ -46,7 +50,12 @@ interface HeaderProps {
  * the server (see `src/lib/auth/session.ts`), and a client component cannot be
  * trusted to resolve it — nor should the browser be sent the machinery to try.
  */
-export function Header({ onMenuToggle, user }: HeaderProps) {
+export function Header({
+  onMenuToggle,
+  onCommandPaletteOpen,
+  notifications,
+  user,
+}: HeaderProps) {
   const t = useTranslations("header");
   const signOutFormRef = React.useRef<HTMLFormElement>(null);
 
@@ -69,7 +78,28 @@ export function Header({ onMenuToggle, user }: HeaderProps) {
           </svg>
         </Button>
 
-        <Button variant="outline" className="hidden w-60 justify-start text-muted-foreground md:flex">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onCommandPaletteOpen}
+          aria-label={t("search")}
+          data-testid="command-palette-mobile-trigger"
+        >
+          <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="hidden w-60 justify-start text-muted-foreground md:flex"
+          onClick={onCommandPaletteOpen}
+          aria-label={t("search")}
+          data-testid="command-palette-trigger"
+        >
           <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
@@ -84,12 +114,8 @@ export function Header({ onMenuToggle, user }: HeaderProps) {
       <div className="flex items-center gap-2">
         <ThemeToggle />
 
-        {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative" aria-label={t("notifications")}>
-          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-          </svg>
-        </Button>
+        {/* Derived work queue: no fake unread state, only current outstanding items. */}
+        <NotificationMenu items={notifications} />
 
         <LocaleSwitcher iconOnly />
 

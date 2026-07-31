@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { LanguageSetting } from "@/components/features/language-setting";
+import { ThemeSetting } from "@/components/features/theme-setting";
 import { signOutAction } from "@/app/(auth)/actions";
 import { actorDisplayName } from "@/lib/auth/current-actor";
 import { getSessionSummary } from "@/lib/auth/session";
@@ -15,9 +17,13 @@ import { TEST_ACCOUNTS } from "@/lib/auth/test-accounts";
 /**
  * Organisation and system settings, served at `/settings`.
  *
- * The account card is new and answers "what am I allowed to do" by listing the
- * permissions the current role holds — previously the role was invisible on every
- * screen.
+ * The display card is where a user actually looks for "change the language", and
+ * before it the only way to do so was a globe icon in the top bar. It is now the
+ * canonical control; the top-bar switcher stays as a quick toggle and both write
+ * the same cookie through the same Server Action, so the two cannot drift.
+ *
+ * The account card answers "what am I allowed to do" by listing the permissions the
+ * current role holds — previously the role was invisible on every screen.
  *
  * The company-profile and emission-factor cards are unchanged in substance but no
  * longer imply they save. There is no persistence behind them yet, and a Save
@@ -44,6 +50,19 @@ export default async function SettingsPage() {
         <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
+
+      {/* Display: language and theme */}
+      <Card id="display">
+        <CardHeader>
+          <CardTitle>{t("appearance")}</CardTitle>
+          <CardDescription>{t("appearance_desc")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <LanguageSetting />
+          <Separator />
+          <ThemeSetting />
+        </CardContent>
+      </Card>
 
       {/* Who am I, and what may I do */}
       <Card id="account">
@@ -124,19 +143,19 @@ export default async function SettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="companyName">{t("company_name")}</Label>
-              <Input id="companyName" defaultValue={t("sample_company")} />
+              <Input id="companyName" defaultValue={t("sample_company")} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="industry">{t("industry")}</Label>
-              <Input id="industry" defaultValue={t("sample_industry")} />
+              <Input id="industry" defaultValue={t("sample_industry")} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="country">{t("country")}</Label>
-              <Input id="country" defaultValue={t("sample_country")} />
+              <Input id="country" defaultValue={t("sample_country")} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="registrationNumber">{t("registration_number")}</Label>
-              <Input id="registrationNumber" defaultValue="123-45-67890" />
+              <Input id="registrationNumber" defaultValue="123-45-67890" disabled />
             </div>
           </div>
           <p className="text-xs text-muted-foreground">{t("not_persisted")}</p>
@@ -157,6 +176,7 @@ export default async function SettingsPage() {
             <Label htmlFor="activeProvider">{t("active_provider")}</Label>
             <select
               id="activeProvider"
+              disabled
               className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
               <option value="korea_moe_2023">{t("provider_korea_moe_2023")}</option>
